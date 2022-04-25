@@ -18,3 +18,12 @@ import "github.com/symbiosis-cloud/symbiosis-go"
 ```
 
 and run `go get` without parameters.
+
+## Running tests ##
+```bash
+go test
+```
+
+
+
+TODO: Add integration tests

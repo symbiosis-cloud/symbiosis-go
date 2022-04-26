@@ -4,41 +4,22 @@ import (
 	"fmt"
 )
 
-type SymbiosisApiError struct {
-	Status    int32
-	ErrorType string `json:"error"`
-	Message   string
-	Path      string
-}
-
-type NodePool struct {
-	Id              string
-	ClusterName     string
-	NodeTypeName    string
-	IsMaster        bool
-	DesiredQuantity int
-}
-
 type Cluster struct {
 	Name      string
 	State     string
 	NodePools []NodePool
+	Nodes     []Node
 }
 
 type ClusterResult struct {
 	Clusters []*Cluster `json:"content"`
 }
 
-func (error *SymbiosisApiError) Error() string {
-	return fmt.Sprintf("Symbiosis: %v (type=%v, path=%v)", error.Message, error.ErrorType, error.Path)
-}
+func (c *Client) ListClusters(maxSize int) (*ClusterResult, error) {
 
-func (client *Client) ListClusters(maxSize int) (*ClusterResult, error) {
-	api := client.symbiosisAPI
 	// TODO handle paging
-
 	var result *ClusterResult
-	resp, err := api.R().
+	resp, err := c.symbiosisAPI.R().
 		SetResult(&result).
 		ForceContentType("application/json").
 		Get(fmt.Sprintf("rest/v1/cluster?size=%d&page=0", maxSize))
@@ -46,13 +27,41 @@ func (client *Client) ListClusters(maxSize int) (*ClusterResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	if resp.StatusCode() == 404 {
-		return result, nil
-	}
-	if resp.StatusCode() != 200 {
-		symbiosisErr := resp.Error().(*SymbiosisApiError)
-		return nil, symbiosisErr
+
+	validated, err := c.ValidateResponse(resp, result)
+
+	if err != nil {
+		return nil, err
 	}
 
-	return result, nil
+	if validated == nil {
+		return nil, nil
+	}
+
+	return validated.(*ClusterResult), nil
+}
+
+func (c *Client) DescribeCluster(name string) (*Cluster, error) {
+	var result *Cluster
+
+	resp, err := c.symbiosisAPI.R().
+		SetResult(&result).
+		ForceContentType("application/json").
+		Get(fmt.Sprintf("rest/v1/cluster/%s", name))
+
+	if err != nil {
+		return nil, err
+	}
+
+	validated, err := c.ValidateResponse(resp, result)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if validated == nil {
+		return nil, nil
+	}
+
+	return validated.(*Cluster), nil
 }

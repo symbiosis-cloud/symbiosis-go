@@ -25,5 +25,8 @@ go test
 ```
 
 
+## TODO:
 
-TODO: Add integration tests
+* Add more unit tests
+* Public docs
+* Add integration tests

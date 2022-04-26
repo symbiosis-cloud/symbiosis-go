@@ -11,12 +11,6 @@ type Client struct {
 	symbiosisAPI *resty.Client
 }
 
-const (
-	MethodGet  = "Get"
-	MethodPost = "Post"
-	MethodPath = "Patch"
-)
-
 type ClientOption func(c *resty.Client)
 
 func WithTimeout(timeout time.Duration) ClientOption {

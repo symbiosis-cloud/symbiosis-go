@@ -13,7 +13,7 @@ func main() {
 		log.Fatalf("Error occurred: %s", err)
 	}
 
-	result, err := client.ListClusters(10)
+	result, err := client.ListClusters(10, 0)
 
 	if err != nil {
 		log.Fatalf("Call failed: %s", err)
@@ -34,19 +34,15 @@ func main() {
 		log.Printf("Cluster name: %s, Node pools: %d", describeCluster.Name, len(describeCluster.NodePools))
 		log.Printf("Total nodes in cluster: %d", poolCount)
 
-		node, err := client.DescribeNode(describeCluster.Nodes[0].Name)
+		for _, node := range cluster.Nodes {
 
-		if err != nil {
-			log.Fatalf("Describe failed: %s", err)
+			err := node.Recycle()
+
+			if err != nil {
+				log.Fatalf("Recycle failed (%s): %s", node.Name, err)
+			}
+
+			log.Printf("Recycled: %s", node.Name)
 		}
-
-		log.Printf("Node name: %s", node.Name)
-
-		err = node.Recycle()
-
-		if err != nil {
-			log.Fatalf("Recycle failed (%s): %s", node.Name, err)
-		}
-
 	}
 }

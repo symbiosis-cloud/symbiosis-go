@@ -3,7 +3,6 @@ package symbiosis
 import (
 	"errors"
 
-	_ "fmt"
 	"github.com/go-resty/resty/v2"
 	"time"
 )

@@ -1,10 +1,15 @@
 package symbiosis
 
 import (
+	"encoding/json"
 	"errors"
 
 	"github.com/go-resty/resty/v2"
 	"time"
+)
+
+const (
+	apiEndpoint = "https://api.symbiosis.host"
 )
 
 type Client struct {
@@ -19,21 +24,24 @@ func WithTimeout(timeout time.Duration) ClientOption {
 	}
 }
 
-func NewClient(endpoint string, apiKey string, opts ...ClientOption) (*Client, error) {
-
-	if endpoint == "" {
-		return nil, errors.New("No endpoint given")
+func WithAlternativeEndpoint(endpoint string) ClientOption {
+	return func(c *resty.Client) {
+		c.SetHostURL(endpoint)
 	}
+}
+
+func NewClient(apiKey string, opts ...ClientOption) (*Client, error) {
 
 	if apiKey == "" {
 		return nil, errors.New("No apiKey given")
 	}
 
 	client := resty.New().
-		SetHostURL(endpoint).
+		SetHostURL(apiEndpoint).
 		SetHeader("X-Auth-ApiKey", apiKey).
 		SetHeader("Content-Type", "application/json").
-		SetHeader("Accept", "application/json")
+		SetHeader("Accept", "application/json").
+		SetTimeout(time.Second * 10)
 
 	for _, opt := range opts {
 		opt(client)
@@ -59,8 +67,13 @@ func (c *Client) ValidateResponse(resp *resty.Response, result interface{}) (int
 	case 200:
 		return result, nil
 		break
+	case 400:
+		var badRequest *GenericError
+		json.Unmarshal(resp.Body(), &badRequest)
+
+		return nil, badRequest
 	case 404:
-		return nil, &NotFoundError{404}
+		return nil, &NotFoundError{404, resp.Request.URL, resp.Request.Method}
 		break
 	}
 

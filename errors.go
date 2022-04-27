@@ -10,14 +10,16 @@ type AuthError struct {
 }
 
 type GenericError struct {
-	Status    int32
+	Status    int32  `json:"status"`
 	ErrorType string `json:"error"`
-	Message   string
-	Path      string
+	Message   string `json:"message"`
+	Path      string `json:"path"`
 }
 
 type NotFoundError struct {
 	StatusCode int
+	URL        string
+	Method     string
 }
 
 func (e *AuthError) Error() string {
@@ -29,5 +31,5 @@ func (e *GenericError) Error() string {
 }
 
 func (e *NotFoundError) Error() string {
-	return fmt.Sprintf("Symbiosis: %v (type=%v, path=%v) not found")
+	return fmt.Sprintf("Symbiosis: %s %s. 404 not found", e.Method, e.URL)
 }

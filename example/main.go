@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	client, err := symbiosis.NewClient("https://api.symbiosis.host", os.Getenv("SYMBIOSIS_API_KEY"))
+	client, err := symbiosis.NewClient(os.Getenv("SYMBIOSIS_API_KEY"))
 
 	if err != nil {
 		log.Fatalf("Error occurred: %s", err)

@@ -23,7 +23,7 @@ func (c *Client) ListClusters(maxSize int, page int) (*ClusterResult, error) {
 	resp, err := c.symbiosisAPI.R().
 		SetResult(&result).
 		ForceContentType("application/json").
-		Get(fmt.Sprintf("rest/v1/cluster?size=%d&page=%s", maxSize, page))
+		Get(fmt.Sprintf("rest/v1/cluster?size=%d&page=%d", maxSize, page))
 
 	if err != nil {
 		return nil, err

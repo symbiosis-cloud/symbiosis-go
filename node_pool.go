@@ -12,19 +12,23 @@ type NodePool struct {
 	DesiredQuantity int
 }
 
-func (c *Client) DescribeNodePool(id string) (*NodePool, error) {
+type NodePoolService struct {
+	client *Client
+}
+
+func (n *NodePoolService) Describe(id string) (*NodePool, error) {
 	var result *NodePool
 
-	resp, err := c.symbiosisAPI.R().
+	resp, err := n.client.httpClient.R().
 		SetResult(&result).
 		ForceContentType("application/json").
-		Get(fmt.Sprintf("rest/v1/node-pool/%v", id))
+		Get(fmt.Sprintf("rest/v1/node-pool/%s", id))
 
 	if err != nil {
 		return nil, err
 	}
 
-	validated, err := c.ValidateResponse(resp, result)
+	validated, err := n.client.ValidateResponse(resp, result)
 
 	if err != nil {
 		return nil, err

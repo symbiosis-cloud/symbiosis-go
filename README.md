@@ -37,7 +37,7 @@ for example:
 
 ```go
 // Changing the symbiosis API endpoint
-client, err := symbiosis.NewClient(os.Getenv("SYMBIOSIS_API_KEY"), symbiosis.WithAlternativeEndpoint("https://some-other-url"))
+client, err := symbiosis.NewClient(os.Getenv("SYMBIOSIS_API_KEY"), symbiosis.WithEndpoint("https://some-other-url"))
 
 // Setting a default timeout
 client, err := symbiosis.NewClient(os.Getenv("SYMBIOSIS_API_KEY"), symbiosis.WithTimeout(time.Second * 30)))

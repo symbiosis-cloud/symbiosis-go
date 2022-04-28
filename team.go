@@ -25,14 +25,18 @@ const (
 	RoleMember  = "MEMBER"
 )
 
+type TeamService struct {
+	client *Client
+}
+
 func GetValidRoles() map[string]bool {
 	return map[string]bool{RoleCluster: true, RoleOwner: true, RoleAdmin: true, RoleMember: true}
 }
 
-func (c *Client) DescribeTeamMember(email string) (*TeamMember, error) {
+func (t *TeamService) GetMemberByEmail(email string) (*TeamMember, error) {
 	var result *TeamMember
 
-	resp, err := c.symbiosisAPI.R().
+	resp, err := t.client.httpClient.R().
 		SetResult(&result).
 		ForceContentType("application/json").
 		Get(fmt.Sprintf("rest/v1/team/member/%s", email))
@@ -41,21 +45,19 @@ func (c *Client) DescribeTeamMember(email string) (*TeamMember, error) {
 		return nil, err
 	}
 
-	validated, err := c.ValidateResponse(resp, result)
+	validated, err := t.client.ValidateResponse(resp, result)
 
 	if err != nil {
 		return nil, err
 	}
 
-	result.client = c
-
 	return validated.(*TeamMember), nil
 }
 
-func (c *Client) DescribeTeamMemberInvitation(email string) (*TeamMember, error) {
+func (t *TeamService) GetInvitationByEmail(email string) (*TeamMember, error) {
 	var result *TeamMember
 
-	resp, err := c.symbiosisAPI.R().
+	resp, err := t.client.httpClient.R().
 		SetResult(&result).
 		ForceContentType("application/json").
 		Get(fmt.Sprintf("rest/v1/team/member/invite/%s", email))
@@ -64,7 +66,7 @@ func (c *Client) DescribeTeamMemberInvitation(email string) (*TeamMember, error)
 		return nil, err
 	}
 
-	validated, err := c.ValidateResponse(resp, result)
+	validated, err := t.client.ValidateResponse(resp, result)
 
 	if err != nil {
 		return nil, err
@@ -73,7 +75,7 @@ func (c *Client) DescribeTeamMemberInvitation(email string) (*TeamMember, error)
 	return validated.(*TeamMember), nil
 }
 
-func (c *Client) InviteTeamMembers(emails []string, role string) ([]*TeamMember, error) {
+func (t *TeamService) InviteMembers(emails []string, role string) ([]*TeamMember, error) {
 	validRoles := GetValidRoles()
 
 	if _, ok := validRoles[role]; !ok {
@@ -88,7 +90,7 @@ func (c *Client) InviteTeamMembers(emails []string, role string) ([]*TeamMember,
 		return nil, errors.New("Failed to create invite")
 	}
 
-	resp, err := c.symbiosisAPI.R().
+	resp, err := t.client.httpClient.R().
 		SetResult(&result).
 		ForceContentType("application/json").
 		SetBody(body).
@@ -98,7 +100,7 @@ func (c *Client) InviteTeamMembers(emails []string, role string) ([]*TeamMember,
 		return nil, err
 	}
 
-	validated, err := c.ValidateResponse(resp, result)
+	validated, err := t.client.ValidateResponse(resp, result)
 
 	if err != nil {
 		return nil, err
@@ -107,10 +109,10 @@ func (c *Client) InviteTeamMembers(emails []string, role string) ([]*TeamMember,
 	return validated.([]*TeamMember), nil
 }
 
-func (t *TeamMember) Delete() error {
-	resp, err := t.client.symbiosisAPI.R().
+func (t *TeamService) DeleteMember(email string) error {
+	resp, err := t.client.httpClient.R().
 		ForceContentType("application/json").
-		Delete(fmt.Sprintf("rest/v1/team/member/%s", t.Email))
+		Delete(fmt.Sprintf("rest/v1/team/member/%s", email))
 
 	if err != nil {
 		return err
@@ -125,14 +127,14 @@ func (t *TeamMember) Delete() error {
 	return nil
 }
 
-func (t *TeamMember) ChangeRole(role string) (*TeamMember, error) {
+func (t *TeamService) ChangeRole(email string, role string) (*TeamMember, error) {
 	var result *TeamMember
 
-	resp, err := t.client.symbiosisAPI.R().
+	resp, err := t.client.httpClient.R().
 		SetResult(&result).
 		ForceContentType("application/json").
 		SetBody([]byte(fmt.Sprintf(`{"role":"%s"}`, role))).
-		Put(fmt.Sprintf("rest/v1/team/member/%s", t.Email))
+		Put(fmt.Sprintf("rest/v1/team/member/%s", email))
 
 	if err != nil {
 		return nil, err

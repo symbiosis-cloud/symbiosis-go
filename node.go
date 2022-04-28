@@ -29,20 +29,23 @@ type Node struct {
 	client             *Client
 }
 
-func (c *Client) DescribeNode(name string) (*Node, error) {
+type NodeService struct {
+	client *Client
+}
+
+func (n *NodeService) Describe(name string) (*Node, error) {
 	var result *Node
 
-	resp, err := c.symbiosisAPI.R().
+	resp, err := n.client.httpClient.R().
 		SetResult(&result).
 		ForceContentType("application/json").
-		Get(fmt.Sprintf("rest/v1/node/%v", name))
+		Get(fmt.Sprintf("rest/v1/node/%s", name))
 
 	if err != nil {
 		return nil, err
 	}
 
-	result.client = c
-	validated, err := c.ValidateResponse(resp, result)
+	validated, err := n.client.ValidateResponse(resp, result)
 
 	if err != nil {
 		return nil, err
@@ -55,18 +58,17 @@ func (c *Client) DescribeNode(name string) (*Node, error) {
 	return validated.(*Node), nil
 }
 
-func (n *Node) Recycle() error {
-	c := n.client
+func (n *NodeService) Recycle(name string) error {
 
-	resp, err := c.symbiosisAPI.R().
+	resp, err := n.client.httpClient.R().
 		ForceContentType("application/json").
-		Put(fmt.Sprintf("rest/v1/node/%v/recycle", n.Name))
+		Put(fmt.Sprintf("rest/v1/node/%v/recycle", name))
 
 	if err != nil {
 		return err
 	}
 
-	_, err = c.ValidateResponse(resp, nil)
+	_, err = n.client.ValidateResponse(resp, nil)
 
 	if err != nil {
 		return err

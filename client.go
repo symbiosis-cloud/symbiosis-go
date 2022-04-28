@@ -13,10 +13,43 @@ const (
 )
 
 type Client struct {
-	symbiosisAPI *resty.Client
+	httpClient *resty.Client
+
+	Team     *TeamService
+	Cluster  *ClusterService
+	NodePool *NodePoolService
+	Node     *NodeService
 }
 
 type ClientOption func(c *resty.Client)
+
+type SortAndPageable struct {
+	Pageable struct {
+		Sort struct {
+			Sorted   bool `json:"sorted"`
+			Unsorted bool `json:"unsorted"`
+			Empty    bool `json:"empty"`
+		} `json:"sort"`
+		PageNumber int  `json:"pageNumber"`
+		PageSize   int  `json:"pageSize"`
+		Offset     int  `json:"offset"`
+		Paged      bool `json:"paged"`
+		Unpaged    bool `json:"unpaged"`
+	} `json:"pageable"`
+	TotalPages    int  `json:"totalPages"`
+	TotalElements int  `json:"totalElements"`
+	Last          bool `json:"last"`
+	Sort          struct {
+		Sorted   bool `json:"sorted"`
+		Unsorted bool `json:"unsorted"`
+		Empty    bool `json:"empty"`
+	} `json:"sort"`
+	NumberOfElements int  `json:"numberOfElements"`
+	First            bool `json:"first"`
+	Size             int  `json:"size"`
+	Number           int  `json:"number"`
+	Empty            bool `json:"empty"`
+}
 
 func WithTimeout(timeout time.Duration) ClientOption {
 	return func(c *resty.Client) {
@@ -24,7 +57,7 @@ func WithTimeout(timeout time.Duration) ClientOption {
 	}
 }
 
-func WithAlternativeEndpoint(endpoint string) ClientOption {
+func WithEndpoint(endpoint string) ClientOption {
 	return func(c *resty.Client) {
 		c.SetHostURL(endpoint)
 	}
@@ -36,7 +69,7 @@ func NewClient(apiKey string, opts ...ClientOption) (*Client, error) {
 		return nil, errors.New("No apiKey given")
 	}
 
-	client := resty.New().
+	httpClient := resty.New().
 		SetHostURL(apiEndpoint).
 		SetHeader("X-Auth-ApiKey", apiKey).
 		SetHeader("Content-Type", "application/json").
@@ -44,12 +77,18 @@ func NewClient(apiKey string, opts ...ClientOption) (*Client, error) {
 		SetTimeout(time.Second * 10)
 
 	for _, opt := range opts {
-		opt(client)
+		opt(httpClient)
 	}
 
-	apiClient := &Client{client}
+	client := &Client{
+		httpClient: httpClient,
+	}
+	client.Team = &TeamService{client}
+	client.Cluster = &ClusterService{client}
+	client.Node = &NodeService{client}
+	client.NodePool = &NodePoolService{client}
 
-	return apiClient, nil
+	return client, nil
 }
 
 func (c *Client) ValidateResponse(resp *resty.Response, result interface{}) (interface{}, error) {
@@ -62,21 +101,19 @@ func (c *Client) ValidateResponse(resp *resty.Response, result interface{}) (int
 			StatusCode: resp.StatusCode(),
 			Err:        errors.New("Authentication failed"),
 		}
-		break
 	case 201:
 	case 200:
 		return result, nil
-		break
+	case 405:
 	case 400:
-		var badRequest *GenericError
-		json.Unmarshal(resp.Body(), &badRequest)
+	case 500:
+		var genericError *GenericError
+		json.Unmarshal(resp.Body(), &genericError)
 
-		return nil, badRequest
+		return nil, genericError
 	case 404:
 		return nil, &NotFoundError{404, resp.Request.URL, resp.Request.Method}
-		break
 	}
 
-	symbiosisErr := resp.Error().(*GenericError)
-	return nil, symbiosisErr
+	return nil, errors.New("Unexpected error occurred")
 }

@@ -12,15 +12,25 @@ type Cluster struct {
 	client    *Client
 }
 
-type ClusterResult struct {
+type ClusterList struct {
 	Clusters []*Cluster `json:"content"`
+	SortAndPageable
 }
 
-func (c *Client) ListClusters(maxSize int, page int) (*ClusterResult, error) {
+type NodeList struct {
+	Nodes []*Node `json:"content"`
+	SortAndPageable
+}
+
+type ClusterService struct {
+	client *Client
+}
+
+func (c *ClusterService) List(maxSize int, page int) (*ClusterList, error) {
 
 	// TODO handle paging
-	var result *ClusterResult
-	resp, err := c.symbiosisAPI.R().
+	var result *ClusterList
+	resp, err := c.client.httpClient.R().
 		SetResult(&result).
 		ForceContentType("application/json").
 		Get(fmt.Sprintf("rest/v1/cluster?size=%d&page=%d", maxSize, page))
@@ -29,7 +39,7 @@ func (c *Client) ListClusters(maxSize int, page int) (*ClusterResult, error) {
 		return nil, err
 	}
 
-	validated, err := c.ValidateResponse(resp, result)
+	validated, err := c.client.ValidateResponse(resp, result)
 
 	if err != nil {
 		return nil, err
@@ -39,28 +49,22 @@ func (c *Client) ListClusters(maxSize int, page int) (*ClusterResult, error) {
 		return nil, nil
 	}
 
-	if len(result.Clusters) > 0 {
-		for _, cluster := range result.Clusters {
-			cluster.populateClient(c)
-		}
-	}
-
-	return validated.(*ClusterResult), nil
+	return validated.(*ClusterList), nil
 }
 
-func (c *Client) DescribeCluster(name string) (*Cluster, error) {
+func (c *ClusterService) Describe(clusterName string) (*Cluster, error) {
 	var result *Cluster
 
-	resp, err := c.symbiosisAPI.R().
+	resp, err := c.client.httpClient.R().
 		SetResult(&result).
 		ForceContentType("application/json").
-		Get(fmt.Sprintf("rest/v1/cluster/%s", name))
+		Get(fmt.Sprintf("rest/v1/cluster/%s", clusterName))
 
 	if err != nil {
 		return nil, err
 	}
 
-	validated, err := c.ValidateResponse(resp, result)
+	validated, err := c.client.ValidateResponse(resp, result)
 
 	if err != nil {
 		return nil, err
@@ -69,18 +73,31 @@ func (c *Client) DescribeCluster(name string) (*Cluster, error) {
 	if validated == nil {
 		return nil, nil
 	}
-
-	result.populateClient(c)
 
 	return validated.(*Cluster), nil
 }
 
-func (c *Cluster) populateClient(client *Client) {
-	c.client = client
+func (c *ClusterService) ListNodes(clusterName string) (*NodeList, error) {
+	var result *NodeList
 
-	if len(c.Nodes) > 0 {
-		for _, node := range c.Nodes {
-			node.client = client
-		}
+	resp, err := c.client.httpClient.R().
+		SetResult(&result).
+		ForceContentType("application/json").
+		Get(fmt.Sprintf("rest/v1/cluster/%s/node", clusterName))
+
+	if err != nil {
+		return nil, err
 	}
+
+	validated, err := c.client.ValidateResponse(resp, result)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if validated == nil {
+		return nil, nil
+	}
+
+	return validated.(*NodeList), nil
 }

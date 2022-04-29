@@ -1,6 +1,8 @@
 # Symbiosis Golang SDK
 ---
 
+[![Coverage Status](https://coveralls.io/repos/github/symbiosis-cloud/symbiosis-go/badge.svg?branch=main)](https://coveralls.io/github/symbiosis-cloud/symbiosis-go?branch=main)
+
 ## Installation ##
 
 symbiosis-go is compatible with modern Go releases in module mode, with Go installed:

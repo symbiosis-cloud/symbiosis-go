@@ -31,7 +31,7 @@ jobs:
       run: if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then exit 1; fi
       if: matrix.os == 'ubuntu-latest'
     - name: Calc coverage
-      run: go test -v -race -covermode=count -coverprofile=coverage.out ./...
+      run: go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
     - name: Convert coverage to lcov
       uses: jandelgado/gcov2lcov-action@v1.0.8
     - name: Code Coverage Report

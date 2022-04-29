@@ -101,16 +101,13 @@ func (c *Client) ValidateResponse(resp *resty.Response, result interface{}) (int
 			StatusCode: resp.StatusCode(),
 			Err:        errors.New("Authentication failed"),
 		}
-	case 201:
-	case 200:
+	case 201, 200:
 		return result, nil
-	case 405:
-	case 400:
-	case 500:
-		var genericError *GenericError
-		json.Unmarshal(resp.Body(), &genericError)
+	case 405, 400, 500:
+		var GenericError *GenericError
+		json.Unmarshal(resp.Body(), &GenericError)
 
-		return nil, genericError
+		return nil, GenericError
 	case 404:
 		return nil, &NotFoundError{404, resp.Request.URL, resp.Request.Method}
 	}

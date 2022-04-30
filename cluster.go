@@ -2,24 +2,28 @@ package symbiosis
 
 import (
 	"fmt"
+	"time"
 )
 
 type Cluster struct {
-	Name      string
-	State     string
-	NodePools []*NodePool
-	Nodes     []*Node
-	client    *Client
+	ID                string      `json:"id"`
+	Name              string      `json:"name"`
+	KubeVersion       string      `json:"kubeVersion"`
+	APIServerEndpoint string      `json:"apiServerEndpoint"`
+	State             string      `json:"state"`
+	Nodes             []*Node     `json:"nodes"`
+	NodePools         []*NodePool `json:"nodePools"`
+	CreatedAt         time.Time   `json:"createdAt"`
 }
 
 type ClusterList struct {
 	Clusters []*Cluster `json:"content"`
-	SortAndPageable
+	*SortAndPageable
 }
 
 type NodeList struct {
 	Nodes []*Node `json:"content"`
-	SortAndPageable
+	*SortAndPageable
 }
 
 type ClusterService struct {
@@ -29,75 +33,61 @@ type ClusterService struct {
 func (c *ClusterService) List(maxSize int, page int) (*ClusterList, error) {
 
 	// TODO handle paging
-	var result *ClusterList
-	resp, err := c.client.httpClient.R().
-		SetResult(&result).
-		ForceContentType("application/json").
-		Get(fmt.Sprintf("rest/v1/cluster?size=%d&page=%d", maxSize, page))
+	var clusterList *ClusterList
+
+	err := c.client.
+		Call(fmt.Sprintf("rest/v1/cluster?size=%d&page=%d", maxSize, page),
+			"Get",
+			&clusterList)
 
 	if err != nil {
 		return nil, err
 	}
 
-	validated, err := c.client.ValidateResponse(resp, result)
-
-	if err != nil {
-		return nil, err
-	}
-
-	if validated == nil {
-		return nil, nil
-	}
-
-	return validated.(*ClusterList), nil
+	return clusterList, nil
 }
 
 func (c *ClusterService) Describe(clusterName string) (*Cluster, error) {
-	var result *Cluster
+	var cluster *Cluster
 
-	resp, err := c.client.httpClient.R().
-		SetResult(&result).
-		ForceContentType("application/json").
-		Get(fmt.Sprintf("rest/v1/cluster/%s", clusterName))
-
-	if err != nil {
-		return nil, err
-	}
-
-	validated, err := c.client.ValidateResponse(resp, result)
+	err := c.client.
+		Call(fmt.Sprintf("rest/v1/cluster/%s", clusterName),
+			"Get",
+			&cluster)
 
 	if err != nil {
 		return nil, err
 	}
 
-	if validated == nil {
-		return nil, nil
+	return cluster, nil
+}
+
+func (c *ClusterService) Delete(clusterName string) error {
+
+	err := c.client.
+		Call(fmt.Sprintf("rest/v1/cluster/%s", clusterName),
+			"Delete",
+			nil)
+
+	if err != nil {
+		return err
 	}
 
-	return validated.(*Cluster), nil
+	return nil
+
 }
 
 func (c *ClusterService) ListNodes(clusterName string) (*NodeList, error) {
-	var result *NodeList
+	var nodeList *NodeList
 
-	resp, err := c.client.httpClient.R().
-		SetResult(&result).
-		ForceContentType("application/json").
-		Get(fmt.Sprintf("rest/v1/cluster/%s/node", clusterName))
-
-	if err != nil {
-		return nil, err
-	}
-
-	validated, err := c.client.ValidateResponse(resp, result)
+	err := c.client.
+		Call(fmt.Sprintf("rest/v1/cluster/%s/node", clusterName),
+			"Get",
+			&nodeList)
 
 	if err != nil {
 		return nil, err
 	}
 
-	if validated == nil {
-		return nil, nil
-	}
-
-	return validated.(*NodeList), nil
+	return nodeList, nil
 }

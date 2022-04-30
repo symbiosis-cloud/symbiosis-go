@@ -29,20 +29,20 @@ and run `go get` without parameters.
 You can easily instantiate the API client by providing it with a valid API key:
 
 ```go
-client, err := symbiosis.NewClient(os.Getenv("SYMBIOSIS_API_KEY"))
+client, err := symbiosis.NewClientFromAPIKey(os.Getenv("SYMBIOSIS_API_KEY"))
 ```
 
 ### Customizing client ###
-ClientOptions can be passed to symbiosis.NewClient()
+ClientOptions can be passed to symbiosis.NewClientFromAPIKey()
 
 for example:
 
 ```go
 // Changing the symbiosis API endpoint
-client, err := symbiosis.NewClient(os.Getenv("SYMBIOSIS_API_KEY"), symbiosis.WithEndpoint("https://some-other-url"))
+client, err := symbiosis.NewClientFromAPIKey(os.Getenv("SYMBIOSIS_API_KEY"), symbiosis.WithEndpoint("https://some-other-url"))
 
 // Setting a default timeout
-client, err := symbiosis.NewClient(os.Getenv("SYMBIOSIS_API_KEY"), symbiosis.WithTimeout(time.Second * 30)))
+client, err := symbiosis.NewClientFromAPIKey(os.Getenv("SYMBIOSIS_API_KEY"), symbiosis.WithTimeout(time.Second * 30)))
 ```
 
 ### Inviting team members:

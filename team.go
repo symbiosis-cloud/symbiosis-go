@@ -10,7 +10,6 @@ type TeamMember struct {
 	Email  string `json:"email"`
 	TeamId string `json:"teamId"`
 	Role   string `json:"role"`
-	client *Client
 }
 
 type Invite struct {
@@ -19,10 +18,15 @@ type Invite struct {
 }
 
 const (
-	RoleCluster = "CLUSTER"
-	RoleOwner   = "OWNER"
-	RoleAdmin   = "ADMIN"
-	RoleMember  = "MEMBER"
+
+	// Has full access, can create teams
+	RoleOwner = "OWNER"
+
+	// Has full access within a team, can invite other team members
+	RoleAdmin = "ADMIN"
+
+	// Can manage resources in clusters but not create them
+	RoleMember = "MEMBER"
 )
 
 type TeamService struct {
@@ -30,121 +34,105 @@ type TeamService struct {
 }
 
 func GetValidRoles() map[string]bool {
-	return map[string]bool{RoleCluster: true, RoleOwner: true, RoleAdmin: true, RoleMember: true}
+	return map[string]bool{RoleOwner: true, RoleAdmin: true, RoleMember: true}
 }
 
-func (t *TeamService) GetMemberByEmail(email string) (*TeamMember, error) {
-	var result *TeamMember
-
-	resp, err := t.client.httpClient.R().
-		SetResult(&result).
-		ForceContentType("application/json").
-		Get(fmt.Sprintf("rest/v1/team/member/%s", email))
-
-	if err != nil {
-		return nil, err
-	}
-
-	validated, err := t.client.ValidateResponse(resp, result)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return validated.(*TeamMember), nil
-}
-
-func (t *TeamService) GetInvitationByEmail(email string) (*TeamMember, error) {
-	var result *TeamMember
-
-	resp, err := t.client.httpClient.R().
-		SetResult(&result).
-		ForceContentType("application/json").
-		Get(fmt.Sprintf("rest/v1/team/member/invite/%s", email))
-
-	if err != nil {
-		return nil, err
-	}
-
-	validated, err := t.client.ValidateResponse(resp, result)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return validated.(*TeamMember), nil
-}
-
-func (t *TeamService) InviteMembers(emails []string, role string) ([]*TeamMember, error) {
+func ValidateRole(role string) error {
 	validRoles := GetValidRoles()
 
 	if _, ok := validRoles[role]; !ok {
-		return nil, errors.New("Invalid role given")
+		return errors.New("Invalid role given")
 	}
 
-	var result []*TeamMember
+	return nil
+}
 
-	body, err := json.Marshal(Invite{emails, role})
+func (t *TeamService) GetMemberByEmail(email string) (*TeamMember, error) {
+	var member *TeamMember
 
-	if err != nil {
-		return nil, errors.New("Failed to create invite")
-	}
-
-	resp, err := t.client.httpClient.R().
-		SetResult(&result).
-		ForceContentType("application/json").
-		SetBody(body).
-		Post("rest/v1/team/member/invite")
+	err := t.client.
+		Call(fmt.Sprintf("rest/v1/team/member/%s", email),
+			"Get",
+			&member)
 
 	if err != nil {
 		return nil, err
 	}
 
-	validated, err := t.client.ValidateResponse(resp, result)
+	return member, nil
+}
+
+func (t *TeamService) GetInvitationByEmail(email string) (*TeamMember, error) {
+
+	var member *TeamMember
+
+	err := t.client.
+		Call(fmt.Sprintf("rest/v1/team/member/invite/%s", email),
+			"Get",
+			&member)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return validated.([]*TeamMember), nil
+	return member, nil
+}
+
+func (t *TeamService) InviteMembers(emails []string, role string) ([]*TeamMember, error) {
+	err := ValidateRole(role)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var teamMembers []*TeamMember
+
+	body, _ := json.Marshal(Invite{emails, role})
+
+	err = t.client.
+		Call(fmt.Sprintf("rest/v1/team/member/invite"),
+			"Post",
+			&teamMembers,
+			WithBody(body))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return teamMembers, nil
 }
 
 func (t *TeamService) DeleteMember(email string) error {
-	resp, err := t.client.httpClient.R().
-		ForceContentType("application/json").
-		Delete(fmt.Sprintf("rest/v1/team/member/%s", email))
-
-	if err != nil {
-		return err
-	}
-
-	_, err = t.client.ValidateResponse(resp, nil)
+	err := t.client.
+		Call(fmt.Sprintf("rest/v1/team/member/%s", email),
+			"Delete",
+			nil)
 
 	if err != nil {
 		return err
 	}
 
 	return nil
+
 }
 
-func (t *TeamService) ChangeRole(email string, role string) (*TeamMember, error) {
-	var result *TeamMember
+func (t *TeamService) ChangeRole(email string, role string) error {
 
-	resp, err := t.client.httpClient.R().
-		SetResult(&result).
-		ForceContentType("application/json").
-		SetBody([]byte(fmt.Sprintf(`{"role":"%s"}`, role))).
-		Put(fmt.Sprintf("rest/v1/team/member/%s", email))
+	err := ValidateRole(role)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	validated, err := t.client.ValidateResponse(resp, result)
+	err = t.client.
+		Call(fmt.Sprintf("rest/v1/team/member/%s", email),
+			"Put",
+			nil,
+			WithBody([]byte(fmt.Sprintf(`{"role":"%s"}`, role))))
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return validated.(*TeamMember), nil
+	return nil
 }

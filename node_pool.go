@@ -5,11 +5,10 @@ import (
 )
 
 type NodePool struct {
-	ID              string
-	ClusterName     string
-	NodeTypeName    string
-	IsMaster        bool
-	DesiredQuantity int
+	ID              string `json:"id"`
+	NodeTypeName    string `json:"nodeTypeName"`
+	ClusterName     string `json:"clusterName"`
+	DesiredQuantity int    `json:"desiredQuantity"`
 }
 
 type NodePoolService struct {
@@ -17,27 +16,17 @@ type NodePoolService struct {
 }
 
 func (n *NodePoolService) Describe(id string) (*NodePool, error) {
-	var result *NodePool
+	var nodePool *NodePool
 
-	resp, err := n.client.httpClient.R().
-		SetResult(&result).
-		ForceContentType("application/json").
-		Get(fmt.Sprintf("rest/v1/node-pool/%s", id))
-
-	if err != nil {
-		return nil, err
-	}
-
-	validated, err := n.client.ValidateResponse(resp, result)
+	err := n.client.
+		Call(fmt.Sprintf("rest/v1/node-pool/%s", id),
+			"Get",
+			&nodePool)
 
 	if err != nil {
 		return nil, err
 	}
 
-	if validated == nil {
-		return nil, nil
-	}
-
-	return validated.(*NodePool), nil
+	return nodePool, nil
 
 }

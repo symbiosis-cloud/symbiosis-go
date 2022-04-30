@@ -10,21 +10,21 @@ import (
 	"time"
 )
 
-func TestNewClientEmptyValues(t *testing.T) {
-	_, err := NewClient("")
+func TestNewClientFromAPIKeyEmptyValues(t *testing.T) {
+	_, err := NewClientFromAPIKey("")
 
 	assert.ErrorContains(t, err, "No apiKey given")
 }
 func TestClientOption(t *testing.T) {
 
-	client, _ := NewClient("apiKey", WithTimeout(time.Second*11), WithEndpoint("https://someplace"))
+	client, _ := NewClientFromAPIKey("apiKey", WithTimeout(time.Second*11), WithEndpoint("https://someplace"))
 
 	assert.Equal(t, time.Second*11, client.httpClient.GetClient().Timeout)
 	assert.Equal(t, "https://someplace", client.httpClient.HostURL)
 }
 
-func TestNewClientResty(t *testing.T) {
-	c, err := NewClient("apiKey")
+func TestNewClientFromAPIKeyResty(t *testing.T) {
+	c, err := NewClientFromAPIKey("apiKey")
 
 	assert.Nil(t, err)
 
@@ -33,8 +33,8 @@ func TestNewClientResty(t *testing.T) {
 
 func TestValidateResponse(t *testing.T) {
 
-	c := GetMockedClient()
-	httpmock.Reset()
+	c := getMocketClient()
+	defer httpmock.DeactivateAndReset()
 
 	responseMap := map[int]string{
 		404: `{ "timestamp": "2022-04-28T11:21:38.930+00:00", "status": 404, "error": "Not Found", "message": "404 NOT_FOUND", "path": "/rest/v1/node/x" }`,
@@ -56,11 +56,7 @@ func TestValidateResponse(t *testing.T) {
 			t.Error(err)
 		}
 
-		result, err := c.ValidateResponse(resp, nil)
-
-		assert.Nil(t, result)
-
-		t.Log(statusCode)
+		err = c.ValidateResponse(resp)
 
 		switch statusCode {
 		case 401:
@@ -89,4 +85,12 @@ func TestValidateResponse(t *testing.T) {
 			assert.ErrorContains(t, err, "Unexpected error occurred")
 		}
 	}
+
+	// test validation failure
+	responder := httpmock.NewStringResponder(403, "")
+	httpmock.RegisterResponder("GET", fakeURL, responder)
+
+	err := c.Call(fakeURL, "Get", nil)
+
+	assert.IsType(t, &GenericError{}, err)
 }

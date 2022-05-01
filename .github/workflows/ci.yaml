@@ -36,6 +36,7 @@ jobs:
       uses: jandelgado/gcov2lcov-action@v1.0.8
     - name: Code Coverage Report
       uses: romeovs/lcov-reporter-action@v0.2.11
+      if: github.event_name == 'pull_request'
       with:
         github-token: ${{ secrets.github_token }}
         lcov-file: coverage.lcov

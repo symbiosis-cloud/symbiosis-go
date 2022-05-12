@@ -16,7 +16,7 @@ func main() {
 	c, err := client.Cluster.Create(&symbiosis.NewCluster{
 		Name: "hello-world-test-golang",
 		Nodes: []symbiosis.ClusterNodeInput{
-			symbiosis.ClusterNodeInput{
+			{
 				Quantity: 1,
 				NodeType: "general-int-1",
 			},
@@ -51,6 +51,5 @@ func main() {
 		for _, node := range nodes.Nodes {
 			log.Printf("Node: %s (state: %s)", node.Name, node.State)
 		}
-
 	}
 }

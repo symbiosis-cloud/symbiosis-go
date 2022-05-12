@@ -115,7 +115,7 @@ func TestCreateCluster(t *testing.T) {
 	newCluster := &NewCluster{
 		Name: "test",
 		Nodes: []ClusterNodeInput{
-			ClusterNodeInput{
+			{
 				Quantity: 1,
 				NodeType: "general-int-1",
 			},

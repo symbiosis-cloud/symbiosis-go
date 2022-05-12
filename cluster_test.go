@@ -20,7 +20,7 @@ const clusterJSON = `
 		"name": "random-0",
 		"nodeType": {
 		  "id": "2f8d2c39-23cd-4623-b816-9489a26c1b8d",
-		  "name": "general-1",
+		  "name": "general-int-1",
 		  "memoryMi": 1024,
 		  "storageGi": 1,
 		  "vcpu": 1,
@@ -96,6 +96,54 @@ func TestDescribeCluster(t *testing.T) {
 	httpmock.RegisterResponder("GET", fakeURL, responder)
 
 	_, err = c.Cluster.Describe("test")
+	assert.Error(t, err)
+
+}
+
+func TestCreateCluster(t *testing.T) {
+	c := getMocketClient()
+	defer httpmock.DeactivateAndReset()
+
+	fakeURL := "/rest/v1/cluster"
+
+	var fakeCluster *Cluster
+	json.Unmarshal([]byte(clusterJSON), &fakeCluster)
+
+	responder := httpmock.NewStringResponder(200, clusterJSON)
+	httpmock.RegisterResponder("POST", fakeURL, responder)
+
+	newCluster := &NewCluster{
+		Name: "test",
+		Nodes: []ClusterNodeInput{
+			ClusterNodeInput{
+				Quantity: 1,
+				NodeType: "general-int-1",
+			},
+		},
+		KubeVersion: "1.23.5",
+		Region:      "germany-1",
+		Configuration: ClusterConfigurationInput{
+			EnableCsiDriver:    true,
+			EnableNginxIngress: false,
+		},
+	}
+
+	cluster, err := c.Cluster.Create(newCluster)
+
+	assert.Nil(t, err)
+	assert.Equal(t, fakeCluster, cluster)
+	assert.Equal(t, newCluster.Name, fakeCluster.Name)
+
+	for _, node := range fakeCluster.Nodes {
+		assert.Equal(t, node.NodeType.Name, newCluster.Nodes[0].NodeType)
+	}
+
+	assert.Equal(t, len(fakeCluster.Nodes), len(newCluster.Nodes))
+
+	responder = httpmock.NewErrorResponder(assert.AnError)
+	httpmock.RegisterResponder("POST", fakeURL, responder)
+
+	_, err = c.Cluster.Create(newCluster)
 	assert.Error(t, err)
 }
 

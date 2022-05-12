@@ -7,11 +7,33 @@ import (
 )
 
 func main() {
-	client, err := symbiosis.NewClient(os.Getenv("SYMBIOSIS_API_KEY"))
+	client, err := symbiosis.NewClientFromAPIKey(os.Getenv("SYMBIOSIS_API_KEY"))
 
 	if err != nil {
 		log.Fatalf("Error occurred: %s", err)
 	}
+
+	c, err := client.Cluster.Create(&symbiosis.NewCluster{
+		Name: "hello-world-test-golang",
+		Nodes: []symbiosis.ClusterNodeInput{
+			symbiosis.ClusterNodeInput{
+				Quantity: 1,
+				NodeType: "general-int-1",
+			},
+		},
+		KubeVersion: "1.23.5",
+		Region:      "germany-1",
+		Configuration: symbiosis.ClusterConfigurationInput{
+			EnableCsiDriver:    true,
+			EnableNginxIngress: false,
+		},
+	})
+
+	if err != nil {
+		log.Fatalf("Call failed: %s", err)
+	}
+
+	log.Printf("Cluster created: %s", c.Name)
 
 	clusters, err := client.Cluster.List(10, 0)
 

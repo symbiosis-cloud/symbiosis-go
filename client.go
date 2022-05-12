@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/go-resty/resty/v2"
+
 	"reflect"
 	"time"
 )
@@ -65,7 +66,7 @@ func WithEndpoint(endpoint string) ClientOption {
 	}
 }
 
-func WithBody(body []byte) CallOption {
+func WithBody(body interface{}) CallOption {
 	return func(req *resty.Request) {
 		req.SetBody(body)
 	}

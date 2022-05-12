@@ -5,6 +5,24 @@ import (
 	"time"
 )
 
+type ClusterConfigurationInput struct {
+	EnableCsiDriver    bool `json:"csiDriver"`
+	EnableNginxIngress bool `json:"nginxIngress"`
+}
+
+type NewCluster struct {
+	Name          string                    `json:"name"`
+	KubeVersion   string                    `json:"kubeVersion"`
+	Region        string                    `json:"regionName"`
+	Nodes         []ClusterNodeInput        `json:"nodes"`
+	Configuration ClusterConfigurationInput `json:"configuration"`
+}
+
+type ClusterNodeInput struct {
+	NodeType string `json:"nodeTypeName"`
+	Quantity int    `json:"quantity"`
+}
+
 type Cluster struct {
 	ID                string      `json:"id"`
 	Name              string      `json:"name"`
@@ -54,6 +72,22 @@ func (c *ClusterService) Describe(clusterName string) (*Cluster, error) {
 		Call(fmt.Sprintf("rest/v1/cluster/%s", clusterName),
 			"Get",
 			&cluster)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return cluster, nil
+}
+
+func (c *ClusterService) Create(newCluster *NewCluster) (*Cluster, error) {
+	var cluster *Cluster
+
+	err := c.client.
+		Call(fmt.Sprintf("rest/v1/cluster"),
+			"Post",
+			&cluster,
+			WithBody(newCluster))
 
 	if err != nil {
 		return nil, err

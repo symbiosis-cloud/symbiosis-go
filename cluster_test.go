@@ -123,7 +123,6 @@ func TestCreateCluster(t *testing.T) {
 		KubeVersion: "1.23.5",
 		Region:      "germany-1",
 		Configuration: ClusterConfigurationInput{
-			EnableCsiDriver:    true,
 			EnableNginxIngress: false,
 		},
 	}

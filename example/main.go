@@ -24,7 +24,6 @@ func main() {
 		KubeVersion: "1.23.5",
 		Region:      "germany-1",
 		Configuration: symbiosis.ClusterConfigurationInput{
-			EnableCsiDriver:    true,
 			EnableNginxIngress: false,
 		},
 	})

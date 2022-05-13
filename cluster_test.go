@@ -112,7 +112,7 @@ func TestCreateCluster(t *testing.T) {
 	responder := httpmock.NewStringResponder(200, clusterJSON)
 	httpmock.RegisterResponder("POST", fakeURL, responder)
 
-	newCluster := &NewCluster{
+	ClusterInput := &ClusterInput{
 		Name: "test",
 		Nodes: []ClusterNodeInput{
 			{
@@ -128,22 +128,22 @@ func TestCreateCluster(t *testing.T) {
 		},
 	}
 
-	cluster, err := c.Cluster.Create(newCluster)
+	cluster, err := c.Cluster.Create(ClusterInput)
 
 	assert.Nil(t, err)
 	assert.Equal(t, fakeCluster, cluster)
-	assert.Equal(t, newCluster.Name, fakeCluster.Name)
+	assert.Equal(t, ClusterInput.Name, fakeCluster.Name)
 
 	for _, node := range fakeCluster.Nodes {
-		assert.Equal(t, node.NodeType.Name, newCluster.Nodes[0].NodeType)
+		assert.Equal(t, node.NodeType.Name, ClusterInput.Nodes[0].NodeType)
 	}
 
-	assert.Equal(t, len(fakeCluster.Nodes), len(newCluster.Nodes))
+	assert.Equal(t, len(fakeCluster.Nodes), len(ClusterInput.Nodes))
 
 	responder = httpmock.NewErrorResponder(assert.AnError)
 	httpmock.RegisterResponder("POST", fakeURL, responder)
 
-	_, err = c.Cluster.Create(newCluster)
+	_, err = c.Cluster.Create(ClusterInput)
 	assert.Error(t, err)
 }
 

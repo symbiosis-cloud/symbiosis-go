@@ -13,7 +13,7 @@ func main() {
 		log.Fatalf("Error occurred: %s", err)
 	}
 
-	c, err := client.Cluster.Create(&symbiosis.NewCluster{
+	c, err := client.Cluster.Create(&symbiosis.ClusterInput{
 		Name: "hello-world-test-golang",
 		Nodes: []symbiosis.ClusterNodeInput{
 			{

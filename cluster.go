@@ -6,11 +6,10 @@ import (
 )
 
 type ClusterConfigurationInput struct {
-	EnableCsiDriver    bool `json:"csiDriver"`
 	EnableNginxIngress bool `json:"nginxIngress"`
 }
 
-type NewCluster struct {
+type ClusterInput struct {
 	Name          string                    `json:"name"`
 	KubeVersion   string                    `json:"kubeVersion"`
 	Region        string                    `json:"regionName"`
@@ -80,14 +79,14 @@ func (c *ClusterService) Describe(clusterName string) (*Cluster, error) {
 	return cluster, nil
 }
 
-func (c *ClusterService) Create(newCluster *NewCluster) (*Cluster, error) {
+func (c *ClusterService) Create(ClusterInput *ClusterInput) (*Cluster, error) {
 	var cluster *Cluster
 
 	err := c.client.
 		Call(fmt.Sprintf("rest/v1/cluster"),
 			"Post",
 			&cluster,
-			WithBody(newCluster))
+			WithBody(ClusterInput))
 
 	if err != nil {
 		return nil, err

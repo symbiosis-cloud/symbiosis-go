@@ -79,14 +79,14 @@ func (c *ClusterService) Describe(clusterName string) (*Cluster, error) {
 	return cluster, nil
 }
 
-func (c *ClusterService) Create(ClusterInput *ClusterInput) (*Cluster, error) {
+func (c *ClusterService) Create(input *ClusterInput) (*Cluster, error) {
 	var cluster *Cluster
 
 	err := c.client.
-		Call(fmt.Sprintf("rest/v1/cluster"),
+		Call("rest/v1/cluster",
 			"Post",
 			&cluster,
-			WithBody(ClusterInput))
+			WithBody(input))
 
 	if err != nil {
 		return nil, err

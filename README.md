@@ -62,6 +62,6 @@ go test
 ## TODO:
 
 * Expand readme
-* Add more unit tests
+* Add single node creation call
 * Public docs
 * Add integration tests

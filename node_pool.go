@@ -70,3 +70,16 @@ func (n *NodePoolService) Update(nodePoolId string, input *NodePoolUpdateInput) 
 
 	return nil
 }
+
+func (n *NodePoolService) Delete(nodePoolId string) error {
+	err := n.client.
+		Call(fmt.Sprintf("rest/v1/node-pool/%s", nodePoolId),
+			"Delete",
+			nil)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

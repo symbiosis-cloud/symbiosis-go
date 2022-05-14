@@ -90,3 +90,22 @@ func TestUpdateNodePool(t *testing.T) {
 	err = c.NodePool.Update("test", input)
 	assert.Error(t, err)
 }
+func TestDeleteNodePool(t *testing.T) {
+	c := getMocketClient()
+	defer httpmock.DeactivateAndReset()
+
+	fakeURL := "/rest/v1/node-pool/test"
+
+	responder := httpmock.NewStringResponder(200, "")
+	httpmock.RegisterResponder("DELETE", fakeURL, responder)
+
+	err := c.NodePool.Delete("test")
+
+	assert.Nil(t, err)
+
+	responder = httpmock.NewErrorResponder(assert.AnError)
+	httpmock.RegisterResponder("DELETE", fakeURL, responder)
+
+	err = c.NodePool.Delete("test")
+	assert.Error(t, err)
+}

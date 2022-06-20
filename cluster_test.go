@@ -2,9 +2,11 @@ package symbiosis
 
 import (
 	"encoding/json"
+	"testing"
+	"time"
+
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 const clusterJSON = `
@@ -41,6 +43,27 @@ const clusterJSON = `
 		"state": "ACTIVE"
 	  }]
 }
+`
+
+const serviceAccountJson = `
+{
+	"id": "test",
+	"kubeConfig": "test",
+	"serviceAccountToken": "test",
+	"clusterCertificateAuthority": "test"
+}
+`
+
+const userServiceAccountJson = `
+[
+	{
+		"id": "test",
+		"createdAt": "2022-06-20T13:39:21.242323Z",
+		"subjectId": "test",
+		"apiKeyId": "test",
+		"type": "api-key"
+	}
+]
 `
 
 const clusterListJSON = `{ "content": [` + clusterJSON + `], ` + sortableJSON + ` }`
@@ -187,5 +210,94 @@ func TestListNodes(t *testing.T) {
 	httpmock.RegisterResponder("GET", fakeURL, responder)
 
 	_, err = c.Cluster.ListNodes("test")
+	assert.Error(t, err)
+}
+
+func TestCreateServiceAccount(t *testing.T) {
+	c := getMocketClient()
+	defer httpmock.DeactivateAndReset()
+
+	fakeURL := "/rest/v1/cluster/test/user-service-account"
+
+	var fakeServiceAccount *ServiceAccount
+	json.Unmarshal([]byte(serviceAccountJson), &fakeServiceAccount)
+
+	responder := httpmock.NewStringResponder(200, serviceAccountJson)
+	httpmock.RegisterResponder("POST", fakeURL, responder)
+
+	serviceAccount, err := c.Cluster.CreateServiceAccount("test")
+
+	assert.Nil(t, err)
+	assert.Equal(t, fakeServiceAccount, serviceAccount)
+	assert.Equal(t, "test", serviceAccount.ClusterCertificateAuthority)
+	assert.Equal(t, "test", serviceAccount.ID)
+	assert.Equal(t, "test", serviceAccount.KubeConfig)
+	assert.Equal(t, "test", serviceAccount.ServiceAccountToken)
+
+	responder = httpmock.NewErrorResponder(assert.AnError)
+	httpmock.RegisterResponder("POST", fakeURL, responder)
+
+	_, err = c.Cluster.CreateServiceAccount("test")
+	assert.Error(t, err)
+}
+
+func TestGetServiceAccount(t *testing.T) {
+	c := getMocketClient()
+	defer httpmock.DeactivateAndReset()
+
+	fakeURL := "/rest/v1/cluster/test/user-service-account/test"
+
+	var fakeServiceAccount *ServiceAccount
+	json.Unmarshal([]byte(serviceAccountJson), &fakeServiceAccount)
+
+	responder := httpmock.NewStringResponder(200, serviceAccountJson)
+	httpmock.RegisterResponder("GET", fakeURL, responder)
+
+	serviceAccount, err := c.Cluster.GetServiceAccount("test", "test")
+
+	assert.Nil(t, err)
+	assert.Equal(t, fakeServiceAccount, serviceAccount)
+	assert.Equal(t, "test", serviceAccount.ClusterCertificateAuthority)
+	assert.Equal(t, "test", serviceAccount.ID)
+	assert.Equal(t, "test", serviceAccount.KubeConfig)
+	assert.Equal(t, "test", serviceAccount.ServiceAccountToken)
+
+	responder = httpmock.NewErrorResponder(assert.AnError)
+	httpmock.RegisterResponder("GET", fakeURL, responder)
+
+	_, err = c.Cluster.GetServiceAccount("test", "test")
+	assert.Error(t, err)
+}
+
+func TestListUserServiceAccount(t *testing.T) {
+	c := getMocketClient()
+	defer httpmock.DeactivateAndReset()
+
+	fakeURL := "/rest/v1/cluster/test/user-service-account"
+
+	var fakeUserServiceAccount []*UserServiceAccount
+	json.Unmarshal([]byte(userServiceAccountJson), &fakeUserServiceAccount)
+
+	responder := httpmock.NewStringResponder(200, userServiceAccountJson)
+	httpmock.RegisterResponder("GET", fakeURL, responder)
+
+	userServiceAccounts, err := c.Cluster.ListUserServiceAccounts("test")
+
+	assert.Nil(t, err)
+
+	assert.Equal(t, fakeUserServiceAccount, userServiceAccounts)
+
+	for _, u := range userServiceAccounts {
+		assert.Equal(t, "test", u.APIKeyID)
+		assert.Equal(t, time.Date(2022, time.June, 20, 13, 39, 21, 242323000, time.UTC), u.CreatedAt)
+		assert.Equal(t, "test", u.ID)
+		assert.Equal(t, "test", u.SubjectID)
+		assert.Equal(t, "api-key", u.Type)
+	}
+
+	responder = httpmock.NewErrorResponder(assert.AnError)
+	httpmock.RegisterResponder("GET", fakeURL, responder)
+
+	_, err = c.Cluster.ListUserServiceAccounts("test")
 	assert.Error(t, err)
 }

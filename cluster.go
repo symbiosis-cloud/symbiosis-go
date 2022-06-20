@@ -47,6 +47,18 @@ type ClusterService struct {
 	client *Client
 }
 
+type UserServiceAccount struct {
+	ID        string    `json:"id"`
+	CreatedAt time.Time `json:"createdAt"`
+	SubjectID string    `json:"subjectId"`
+	APIKeyID  string    `json:"apiKeyId"`
+	Type      string    `json:"type"`
+}
+
+type ServiceAccountInput struct {
+	SubjectId string `json:"subjectId"`
+}
+
 func (c *ClusterService) List(maxSize int, page int) (*ClusterList, error) {
 
 	// TODO handle paging
@@ -123,4 +135,56 @@ func (c *ClusterService) ListNodes(clusterName string) (*NodeList, error) {
 	}
 
 	return nodeList, nil
+}
+
+type ServiceAccount struct {
+	ID                          string `json:"id"`
+	KubeConfig                  string `json:"kubeConfig"`
+	ServiceAccountToken         string `json:"serviceAccountToken"`
+	ClusterCertificateAuthority string `json:"clusterCertificateAuthority"`
+}
+
+func (n *ClusterService) CreateServiceAccount(clusterName string) (*ServiceAccount, error) {
+	var serviceAccount *ServiceAccount
+
+	err := n.client.
+		Call(fmt.Sprintf("rest/v1/cluster/%s/user-service-account", clusterName),
+			"Post",
+			&serviceAccount)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return serviceAccount, nil
+}
+
+func (n *ClusterService) GetServiceAccount(clusterName string, serviceAccountName string) (*ServiceAccount, error) {
+	var serviceAccount *ServiceAccount
+
+	err := n.client.
+		Call(fmt.Sprintf("rest/v1/cluster/%s/user-service-account/%s", clusterName, serviceAccountName),
+			"Get",
+			&serviceAccount)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return serviceAccount, nil
+}
+
+func (n *ClusterService) ListUserServiceAccounts(clusterName string) ([]*UserServiceAccount, error) {
+	var userServiceAccount []*UserServiceAccount
+
+	err := n.client.
+		Call(fmt.Sprintf("rest/v1/cluster/%s/user-service-account", clusterName),
+			"Get",
+			&userServiceAccount)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return userServiceAccount, nil
 }

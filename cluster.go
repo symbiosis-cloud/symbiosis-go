@@ -174,6 +174,18 @@ func (n *ClusterService) GetServiceAccount(clusterName string, serviceAccountNam
 	return serviceAccount, nil
 }
 
+func (n *ClusterService) DeleteServiceAccount(clusterName string, serviceAccountName string) error {
+	err := n.client.
+		Call(fmt.Sprintf("rest/v1/cluster/%s/user-service-account/%s", clusterName, serviceAccountName),
+			"Delete",
+			nil)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (n *ClusterService) ListUserServiceAccounts(clusterName string) ([]*UserServiceAccount, error) {
 	var userServiceAccount []*UserServiceAccount
 

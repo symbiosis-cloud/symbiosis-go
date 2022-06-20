@@ -301,3 +301,23 @@ func TestListUserServiceAccount(t *testing.T) {
 	_, err = c.Cluster.ListUserServiceAccounts("test")
 	assert.Error(t, err)
 }
+
+func TestDeleteServiceAccount(t *testing.T) {
+	c := getMocketClient()
+	defer httpmock.DeactivateAndReset()
+
+	fakeURL := "/rest/v1/cluster/test/user-service-account/test"
+
+	responder := httpmock.NewStringResponder(200, "")
+	httpmock.RegisterResponder("DELETE", fakeURL, responder)
+
+	err := c.Cluster.DeleteServiceAccount("test", "test")
+
+	assert.Nil(t, err)
+
+	responder = httpmock.NewErrorResponder(assert.AnError)
+	httpmock.RegisterResponder("DELETE", fakeURL, responder)
+
+	err = c.Cluster.DeleteServiceAccount("test", "test")
+	assert.Error(t, err)
+}

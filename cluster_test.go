@@ -213,7 +213,7 @@ func TestListNodes(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestCreateServiceAccount(t *testing.T) {
+func TestCreateServiceAccountForSelf(t *testing.T) {
 	c := getMocketClient()
 	defer httpmock.DeactivateAndReset()
 
@@ -225,7 +225,7 @@ func TestCreateServiceAccount(t *testing.T) {
 	responder := httpmock.NewStringResponder(200, serviceAccountJson)
 	httpmock.RegisterResponder("POST", fakeURL, responder)
 
-	serviceAccount, err := c.Cluster.CreateServiceAccount("test")
+	serviceAccount, err := c.Cluster.CreateServiceAccountForSelf("test")
 
 	assert.Nil(t, err)
 	assert.Equal(t, fakeServiceAccount, serviceAccount)
@@ -237,7 +237,7 @@ func TestCreateServiceAccount(t *testing.T) {
 	responder = httpmock.NewErrorResponder(assert.AnError)
 	httpmock.RegisterResponder("POST", fakeURL, responder)
 
-	_, err = c.Cluster.CreateServiceAccount("test")
+	_, err = c.Cluster.CreateServiceAccountForSelf("test")
 	assert.Error(t, err)
 }
 

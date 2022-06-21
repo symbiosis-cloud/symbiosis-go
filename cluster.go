@@ -144,7 +144,7 @@ type ServiceAccount struct {
 	ClusterCertificateAuthority string `json:"clusterCertificateAuthority"`
 }
 
-func (n *ClusterService) CreateServiceAccount(clusterName string) (*ServiceAccount, error) {
+func (n *ClusterService) CreateServiceAccountForSelf(clusterName string) (*ServiceAccount, error) {
 	var serviceAccount *ServiceAccount
 
 	err := n.client.
@@ -159,11 +159,11 @@ func (n *ClusterService) CreateServiceAccount(clusterName string) (*ServiceAccou
 	return serviceAccount, nil
 }
 
-func (n *ClusterService) GetServiceAccount(clusterName string, serviceAccountName string) (*ServiceAccount, error) {
+func (n *ClusterService) GetServiceAccount(clusterName string, serviceAccountId string) (*ServiceAccount, error) {
 	var serviceAccount *ServiceAccount
 
 	err := n.client.
-		Call(fmt.Sprintf("rest/v1/cluster/%s/user-service-account/%s", clusterName, serviceAccountName),
+		Call(fmt.Sprintf("rest/v1/cluster/%s/user-service-account/%s", clusterName, serviceAccountId),
 			"Get",
 			&serviceAccount)
 
@@ -174,9 +174,9 @@ func (n *ClusterService) GetServiceAccount(clusterName string, serviceAccountNam
 	return serviceAccount, nil
 }
 
-func (n *ClusterService) DeleteServiceAccount(clusterName string, serviceAccountName string) error {
+func (n *ClusterService) DeleteServiceAccount(clusterName string, serviceAccountId string) error {
 	err := n.client.
-		Call(fmt.Sprintf("rest/v1/cluster/%s/user-service-account/%s", clusterName, serviceAccountName),
+		Call(fmt.Sprintf("rest/v1/cluster/%s/user-service-account/%s", clusterName, serviceAccountId),
 			"Delete",
 			nil)
 

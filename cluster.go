@@ -159,6 +159,21 @@ func (n *ClusterService) CreateServiceAccountForSelf(clusterName string) (*Servi
 	return serviceAccount, nil
 }
 
+func (n *ClusterService) CreateServiceAccount(clusterName string, subjectId string) (*ServiceAccount, error) {
+	var serviceAccount *ServiceAccount
+
+	err := n.client.
+		Call(fmt.Sprintf("rest/v1/cluster/%s/user-service-account/%s", clusterName, subjectId),
+			"Post",
+			&serviceAccount)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return serviceAccount, nil
+}
+
 func (n *ClusterService) GetServiceAccount(clusterName string, serviceAccountId string) (*ServiceAccount, error) {
 	var serviceAccount *ServiceAccount
 

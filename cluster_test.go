@@ -241,6 +241,34 @@ func TestCreateServiceAccountForSelf(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestCreateServiceAccount(t *testing.T) {
+	c := getMocketClient()
+	defer httpmock.DeactivateAndReset()
+
+	fakeURL := "/rest/v1/cluster/test/user-service-account/test"
+
+	var fakeServiceAccount *ServiceAccount
+	json.Unmarshal([]byte(serviceAccountJson), &fakeServiceAccount)
+
+	responder := httpmock.NewStringResponder(200, serviceAccountJson)
+	httpmock.RegisterResponder("POST", fakeURL, responder)
+
+	serviceAccount, err := c.Cluster.CreateServiceAccount("test", "test")
+
+	assert.Nil(t, err)
+	assert.Equal(t, fakeServiceAccount, serviceAccount)
+	assert.Equal(t, "test", serviceAccount.ClusterCertificateAuthority)
+	assert.Equal(t, "test", serviceAccount.ID)
+	assert.Equal(t, "test", serviceAccount.KubeConfig)
+	assert.Equal(t, "test", serviceAccount.ServiceAccountToken)
+
+	responder = httpmock.NewErrorResponder(assert.AnError)
+	httpmock.RegisterResponder("POST", fakeURL, responder)
+
+	_, err = c.Cluster.CreateServiceAccount("test", "test")
+	assert.Error(t, err)
+}
+
 func TestGetServiceAccount(t *testing.T) {
 	c := getMocketClient()
 	defer httpmock.DeactivateAndReset()

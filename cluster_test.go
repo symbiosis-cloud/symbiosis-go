@@ -66,6 +66,14 @@ const userServiceAccountJson = `
 ]
 `
 
+const clusterIdentityJson = `
+{
+	"certificatePem": "test",
+	"privateKeyPem": "test",
+	"expiresAtEpochSecond": 1658681509,
+	"clusterCertificateAuthorityPem": "test"
+}`
+
 const clusterListJSON = `{ "content": [` + clusterJSON + `], ` + sortableJSON + ` }`
 const nodeListJSON = `{ "content": [` + nodeJSON + `], ` + sortableJSON + ` }`
 
@@ -347,5 +355,33 @@ func TestDeleteServiceAccount(t *testing.T) {
 	httpmock.RegisterResponder("DELETE", fakeURL, responder)
 
 	err = c.Cluster.DeleteServiceAccount("test", "test")
+	assert.Error(t, err)
+}
+
+func TestGetIdentity(t *testing.T) {
+	c := getMocketClient()
+	defer httpmock.DeactivateAndReset()
+
+	fakeURL := "/rest/v1/cluster/test/identity"
+
+	var fakeIdentity *ClusterIdentity
+	json.Unmarshal([]byte(clusterIdentityJson), &fakeIdentity)
+
+	responder := httpmock.NewStringResponder(200, clusterIdentityJson)
+	httpmock.RegisterResponder("GET", fakeURL, responder)
+
+	identity, err := c.Cluster.GetIdentity("test")
+
+	assert.Nil(t, err)
+	assert.Equal(t, fakeIdentity, identity)
+	assert.Equal(t, "test", identity.CertificatePem)
+	assert.Equal(t, "test", identity.ClusterCertificateAuthorityPem)
+	assert.Equal(t, 1658681509, identity.ExpiresAtEpochSecond)
+	assert.Equal(t, "test", identity.PrivateKeyPem)
+
+	responder = httpmock.NewErrorResponder(assert.AnError)
+	httpmock.RegisterResponder("GET", fakeURL, responder)
+
+	_, err = c.Cluster.GetIdentity("test")
 	assert.Error(t, err)
 }

@@ -59,6 +59,13 @@ type ServiceAccountInput struct {
 	SubjectId string `json:"subjectId"`
 }
 
+type ClusterIdentity struct {
+	CertificatePem                 string `json:"certificatePem"`
+	PrivateKeyPem                  string `json:"privateKeyPem"`
+	ExpiresAtEpochSecond           int    `json:"expiresAtEpochSecond"`
+	ClusterCertificateAuthorityPem string `json:"clusterCertificateAuthorityPem"`
+}
+
 func (c *ClusterService) List(maxSize int, page int) (*ClusterList, error) {
 
 	// TODO handle paging
@@ -214,4 +221,19 @@ func (n *ClusterService) ListUserServiceAccounts(clusterName string) ([]*UserSer
 	}
 
 	return userServiceAccount, nil
+}
+
+func (n *ClusterService) GetIdentity(clusterName string) (*ClusterIdentity, error) {
+	var clusterIdentity *ClusterIdentity
+
+	err := n.client.
+		Call(fmt.Sprintf("rest/v1/cluster/%s/identity", clusterName),
+			"Get",
+			&clusterIdentity)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return clusterIdentity, nil
 }

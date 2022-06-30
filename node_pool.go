@@ -5,12 +5,12 @@ import (
 )
 
 type NodePool struct {
-	ID              string   `json:"id"`
-	NodeTypeName    string   `json:"nodeTypeName"`
-	ClusterName     string   `json:"clusterName"`
-	DesiredQuantity int      `json:"desiredQuantity"`
-	Labels          []Labels `json:"labels"`
-	Taints          []Taints `json:"taints"`
+	ID              string  `json:"id"`
+	NodeTypeName    string  `json:"nodeTypeName"`
+	ClusterName     string  `json:"clusterName"`
+	DesiredQuantity int     `json:"desiredQuantity"`
+	Labels          []Label `json:"labels"`
+	Taints          []Taint `json:"taints"`
 }
 
 type NodePoolService struct {
@@ -22,18 +22,18 @@ type NodePoolUpdateInput struct {
 }
 
 type NodePoolInput struct {
-	Name         string   `json:"name"`
-	ClusterName  string   `json:"clusterName"`
-	NodeTypeName string   `json:"nodeTypeName"`
-	Quantity     int      `json:"quantity"`
-	Labels       []Labels `json:"labels"`
-	Taints       []Taints `json:"taints"`
+	Name         string  `json:"name"`
+	ClusterName  string  `json:"clusterName"`
+	NodeTypeName string  `json:"nodeTypeName"`
+	Quantity     int     `json:"quantity"`
+	Labels       []Label `json:"labels"`
+	Taints       []Taint `json:"taints"`
 }
-type Labels struct {
+type Label struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }
-type Taints struct {
+type Taint struct {
 	Key    string `json:"key"`
 	Value  string `json:"value"`
 	Effect string `json:"effect"`

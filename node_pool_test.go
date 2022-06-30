@@ -2,9 +2,10 @@ package symbiosis
 
 import (
 	"encoding/json"
+	"testing"
+
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 const nodePoolJSON = `
@@ -12,7 +13,24 @@ const nodePoolJSON = `
   "Id": "test",
   "clusterName": "test",
   "nodeTypeName": "general-1",
-  "quantity": 2
+  "quantity": 2,
+  "labels": [
+	{
+		"key": "hello",
+		"value": "world"
+	},
+	{
+		"key": "test",
+		"value": "123"
+	}
+	],
+	"taints": [
+		{
+			"key": "type",
+			"value": "encoding",
+			"effect": "NoSchedule"
+		}
+	]
 }`
 
 func TestDescribeNodePool(t *testing.T) {
@@ -31,6 +49,11 @@ func TestDescribeNodePool(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, fakeNodePool, nodePool)
+	assert.Equal(t, fakeNodePool.Labels[0].Key, "hello")
+	assert.Equal(t, fakeNodePool.Labels[0].Value, "world")
+	assert.Equal(t, fakeNodePool.Taints[0].Effect, "NoSchedule")
+	assert.Equal(t, fakeNodePool.Taints[0].Key, "type")
+	assert.Equal(t, fakeNodePool.Taints[0].Value, "encoding")
 
 	responder = httpmock.NewErrorResponder(assert.AnError)
 	httpmock.RegisterResponder("GET", fakeURL, responder)

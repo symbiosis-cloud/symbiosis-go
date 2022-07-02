@@ -14,6 +14,7 @@ const (
 
 type NodePool struct {
 	ID              string      `json:"id"`
+	Name            string      `json:"name"`
 	NodeTypeName    string      `json:"nodeTypeName"`
 	ClusterName     string      `json:"clusterName"`
 	DesiredQuantity int         `json:"desiredQuantity"`

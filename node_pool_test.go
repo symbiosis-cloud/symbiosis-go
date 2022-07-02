@@ -11,6 +11,7 @@ import (
 const nodePoolJSON = `
 {
   "Id": "test",
+  "name": "test",
   "clusterName": "test",
   "nodeTypeName": "general-1",
   "quantity": 2,
@@ -49,6 +50,7 @@ func TestDescribeNodePool(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, fakeNodePool, nodePool)
+	assert.Equal(t, fakeNodePool.Name, "test")
 	assert.Equal(t, fakeNodePool.Labels[0].Key, "hello")
 	assert.Equal(t, fakeNodePool.Labels[0].Value, "world")
 	assert.Equal(t, fakeNodePool.Taints[0].Effect, EFFECT_NO_SCHEDULE)

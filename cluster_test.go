@@ -131,6 +131,31 @@ func TestDescribeCluster(t *testing.T) {
 
 }
 
+func TestDescribeClusterById(t *testing.T) {
+	c := getMocketClient()
+	defer httpmock.DeactivateAndReset()
+
+	fakeURL := "/rest/v1/cluster/by-id/test"
+
+	var fakeCluster *Cluster
+	json.Unmarshal([]byte(clusterJSON), &fakeCluster)
+
+	responder := httpmock.NewStringResponder(200, clusterJSON)
+	httpmock.RegisterResponder("GET", fakeURL, responder)
+
+	cluster, err := c.Cluster.DescribeById("test")
+
+	assert.Nil(t, err)
+	assert.Equal(t, fakeCluster, cluster)
+
+	responder = httpmock.NewErrorResponder(assert.AnError)
+	httpmock.RegisterResponder("GET", fakeURL, responder)
+
+	_, err = c.Cluster.DescribeById("test")
+	assert.Error(t, err)
+
+}
+
 func TestCreateCluster(t *testing.T) {
 	c := getMocketClient()
 	defer httpmock.DeactivateAndReset()

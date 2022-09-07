@@ -27,7 +27,7 @@ type Cluster struct {
 	Nodes             []*Node     `json:"nodes"`
 	NodePools         []*NodePool `json:"nodePools"`
 	CreatedAt         time.Time   `json:"createdAt"`
-	HighlyAvailable   bool        `json:"isHighlyAvailable"`
+	IsHighlyAvailable bool        `json:"isHighlyAvailable"`
 }
 
 type ClusterList struct {

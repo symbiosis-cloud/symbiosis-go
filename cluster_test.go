@@ -187,7 +187,7 @@ func TestCreateCluster(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, fakeCluster, cluster)
 	assert.Equal(t, ClusterInput.Name, fakeCluster.Name)
-	assert.Equal(t, true, cluster.HighlyAvailable)
+	assert.Equal(t, true, cluster.IsHighlyAvailable)
 
 	for _, node := range fakeCluster.Nodes {
 		assert.Equal(t, node.NodeType.Name, ClusterInput.Nodes[0].NodeType)

@@ -31,6 +31,38 @@ const nodePoolJSON = `
 			"value": "encoding",
 			"effect": "NoSchedule"
 		}
+	],
+	"nodes": [
+		{
+			"id": "test",
+			"nodePoolId": "test",
+			"name": "general-1-wripks",
+			"nodeType": {
+				"id": "test",
+				"name": "general-1",
+				"memoryMi": 2048,
+				"storageGi": 20,
+				"vcpu": 1,
+				"product": {
+					"productCosts": [
+						{
+							"currency": "USD",
+							"unitCost": 6.00
+						}
+					]
+				}
+			},
+			"region": {
+				"id": "fdcabb92-3557-48e6-a7f5-984251295303",
+				"name": "germany-1"
+			},
+			"privateIPv4Address": "10.128.0.2",
+			"state": "ACTIVE",
+			"kubeState": "READY",
+			"kubeVersion": "1.23.9",
+			"priority": 1,
+			"createdAt": "2022-09-01T12:47:51.109104Z"
+		}
 	]
 }`
 
@@ -56,6 +88,7 @@ func TestDescribeNodePool(t *testing.T) {
 	assert.Equal(t, fakeNodePool.Taints[0].Effect, EFFECT_NO_SCHEDULE)
 	assert.Equal(t, fakeNodePool.Taints[0].Key, "type")
 	assert.Equal(t, fakeNodePool.Taints[0].Value, "encoding")
+	assert.Equal(t, fakeNodePool.Nodes[0].Name, "general-1-wripks")
 
 	responder = httpmock.NewErrorResponder(assert.AnError)
 	httpmock.RegisterResponder("GET", fakeURL, responder)

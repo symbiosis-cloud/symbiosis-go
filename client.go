@@ -3,6 +3,7 @@ package symbiosis
 import (
 	"encoding/json"
 	"errors"
+
 	"github.com/go-resty/resty/v2"
 
 	"reflect"
@@ -77,7 +78,7 @@ func newHttpClient(opts ...ClientOption) *resty.Client {
 		SetHostURL(APIEndpoint).
 		SetHeader("Content-Type", "application/json").
 		SetHeader("Accept", "application/json").
-		SetTimeout(time.Second * 10)
+		SetTimeout(time.Second * 90)
 
 	for _, opt := range opts {
 		opt(httpClient)

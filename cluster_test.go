@@ -16,6 +16,7 @@ const clusterJSON = `
 	"kubeVersion": "1.23.5",
 	"apiServerEndpoint": "does.not.matter",
 	"state": "ACTIVE",
+	"isHighlyAvailable": true,
 	"nodes": [
 	  {
 		"id": "19fc97a5-30de-4f35-8b28-a14bf640b557",
@@ -176,11 +177,9 @@ func TestCreateCluster(t *testing.T) {
 				NodeType: "general-int-1",
 			},
 		},
-		KubeVersion: "1.23.5",
-		Region:      "germany-1",
-		Configuration: ClusterConfigurationInput{
-			EnableNginxIngress: false,
-		},
+		KubeVersion:       "1.23.5",
+		Region:            "germany-1",
+		IsHighlyAvailable: true,
 	}
 
 	cluster, err := c.Cluster.Create(ClusterInput)
@@ -188,6 +187,7 @@ func TestCreateCluster(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, fakeCluster, cluster)
 	assert.Equal(t, ClusterInput.Name, fakeCluster.Name)
+	assert.Equal(t, true, cluster.HighlyAvailable)
 
 	for _, node := range fakeCluster.Nodes {
 		assert.Equal(t, node.NodeType.Name, ClusterInput.Nodes[0].NodeType)

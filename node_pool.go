@@ -20,6 +20,7 @@ type NodePool struct {
 	DesiredQuantity int         `json:"desiredQuantity"`
 	Labels          []NodeLabel `json:"labels"`
 	Taints          []NodeTaint `json:"taints"`
+	Nodes           []Node      `json:"nodes"`
 }
 
 type NodePoolService struct {

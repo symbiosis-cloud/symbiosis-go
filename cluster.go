@@ -5,16 +5,12 @@ import (
 	"time"
 )
 
-type ClusterConfigurationInput struct {
-	EnableNginxIngress bool `json:"nginxIngress"`
-}
-
 type ClusterInput struct {
-	Name          string                    `json:"name"`
-	KubeVersion   string                    `json:"kubeVersion"`
-	Region        string                    `json:"regionName"`
-	Nodes         []ClusterNodeInput        `json:"nodes"`
-	Configuration ClusterConfigurationInput `json:"configuration"`
+	Name              string             `json:"name"`
+	KubeVersion       string             `json:"kubeVersion"`
+	Region            string             `json:"regionName"`
+	Nodes             []ClusterNodeInput `json:"nodes"`
+	IsHighlyAvailable bool               `json:"isHighlyAvailable"`
 }
 
 type ClusterNodeInput struct {
@@ -31,6 +27,7 @@ type Cluster struct {
 	Nodes             []*Node     `json:"nodes"`
 	NodePools         []*NodePool `json:"nodePools"`
 	CreatedAt         time.Time   `json:"createdAt"`
+	IsHighlyAvailable bool        `json:"isHighlyAvailable"`
 }
 
 type ClusterList struct {

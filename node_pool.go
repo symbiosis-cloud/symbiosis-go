@@ -13,14 +13,15 @@ const (
 )
 
 type NodePool struct {
-	ID              string      `json:"id"`
-	Name            string      `json:"name"`
-	NodeTypeName    string      `json:"nodeTypeName"`
-	ClusterName     string      `json:"clusterName"`
-	DesiredQuantity int         `json:"desiredQuantity"`
-	Labels          []NodeLabel `json:"labels"`
-	Taints          []NodeTaint `json:"taints"`
-	Nodes           []Node      `json:"nodes"`
+	ID              string              `json:"id"`
+	Name            string              `json:"name"`
+	NodeTypeName    string              `json:"nodeTypeName"`
+	ClusterName     string              `json:"clusterName"`
+	DesiredQuantity int                 `json:"desiredQuantity"`
+	Labels          []NodeLabel         `json:"labels"`
+	Taints          []NodeTaint         `json:"taints"`
+	Nodes           []Node              `json:"nodes"`
+	Autoscaling     AutoscalingSettings `json:"autoscaling"`
 }
 
 type NodePoolService struct {
@@ -31,13 +32,20 @@ type NodePoolUpdateInput struct {
 	Quantity int `json:"quantity"`
 }
 
+type AutoscalingSettings struct {
+	Enabled bool `json:"enabled"`
+	MinSize int  `json:"minSize"`
+	MaxSize int  `json:"maxSize"`
+}
+
 type NodePoolInput struct {
-	Name         string      `json:"name"`
-	ClusterName  string      `json:"clusterName"`
-	NodeTypeName string      `json:"nodeTypeName"`
-	Quantity     int         `json:"quantity"`
-	Labels       []NodeLabel `json:"labels"`
-	Taints       []NodeTaint `json:"taints"`
+	Name         string              `json:"name"`
+	ClusterName  string              `json:"clusterName"`
+	NodeTypeName string              `json:"nodeTypeName"`
+	Quantity     int                 `json:"quantity"`
+	Labels       []NodeLabel         `json:"labels"`
+	Taints       []NodeTaint         `json:"taints"`
+	Autoscaling  AutoscalingSettings `json:"autoscaling"`
 }
 
 type NodeLabel struct {

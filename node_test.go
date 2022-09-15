@@ -2,9 +2,10 @@ package symbiosis
 
 import (
 	"encoding/json"
+	"testing"
+
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 const nodeJSON = `
@@ -77,5 +78,25 @@ func TestRecycleNode(t *testing.T) {
 	httpmock.RegisterResponder("PUT", fakeURL, responder)
 
 	err = c.Node.Recycle("test")
+	assert.Error(t, err)
+}
+
+func TestDeleteNode(t *testing.T) {
+	c := getMocketClient()
+	defer httpmock.DeactivateAndReset()
+
+	fakeURL := "/rest/v1/node/test"
+
+	responder := httpmock.NewStringResponder(200, "")
+	httpmock.RegisterResponder("DELETE", fakeURL, responder)
+
+	err := c.Node.Delete("test")
+
+	assert.Nil(t, err)
+
+	responder = httpmock.NewErrorResponder(assert.AnError)
+	httpmock.RegisterResponder("DELETE", fakeURL, responder)
+
+	err = c.Node.Delete("test")
 	assert.Error(t, err)
 }

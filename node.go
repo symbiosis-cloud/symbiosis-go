@@ -70,3 +70,17 @@ func (n *NodeService) Recycle(name string) error {
 
 	return nil
 }
+
+func (n *NodeService) Delete(name string) error {
+
+	err := n.client.
+		Call(fmt.Sprintf("rest/v1/node/%v", name),
+			"Delete",
+			nil)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

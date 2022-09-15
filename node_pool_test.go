@@ -63,7 +63,12 @@ const nodePoolJSON = `
 			"priority": 1,
 			"createdAt": "2022-09-01T12:47:51.109104Z"
 		}
-	]
+	],
+	"autoscaling": {
+		"enabled": true,
+		"minSize": 1,
+		"maxSize": 10
+	}
 }`
 
 func TestDescribeNodePool(t *testing.T) {
@@ -89,6 +94,7 @@ func TestDescribeNodePool(t *testing.T) {
 	assert.Equal(t, fakeNodePool.Taints[0].Key, "type")
 	assert.Equal(t, fakeNodePool.Taints[0].Value, "encoding")
 	assert.Equal(t, fakeNodePool.Nodes[0].Name, "general-1-wripks")
+	assert.Equal(t, fakeNodePool.Autoscaling, AutoscalingSettings{true, 1, 10})
 
 	responder = httpmock.NewErrorResponder(assert.AnError)
 	httpmock.RegisterResponder("GET", fakeURL, responder)

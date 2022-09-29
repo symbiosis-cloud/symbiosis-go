@@ -27,7 +27,7 @@ type NodePool struct {
 	DesiredQuantity int                 `json:"desiredQuantity"`
 	Labels          []NodeLabel         `json:"labels"`
 	Taints          []NodeTaint         `json:"taints"`
-	Nodes           []Node              `json:"nodes"`
+	Nodes           []*Node             `json:"nodes"`
 	Autoscaling     AutoscalingSettings `json:"autoscaling"`
 }
 
@@ -50,8 +50,8 @@ type NodePoolInput struct {
 	ClusterName  string              `json:"clusterName"`
 	NodeTypeName string              `json:"nodeTypeName"`
 	Quantity     int                 `json:"quantity"`
-	Labels       []NodeLabel         `json:"labels"`
-	Taints       []NodeTaint         `json:"taints"`
+	Labels       []*NodeLabel        `json:"labels"`
+	Taints       []*NodeTaint        `json:"taints"`
 	Autoscaling  AutoscalingSettings `json:"autoscaling"`
 }
 

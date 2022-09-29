@@ -4,6 +4,13 @@ import (
 	"fmt"
 )
 
+type NodePoolService interface {
+	Describe(id string) (*NodePool, error)
+	Create(input *NodePoolInput) (*NodePool, error)
+	Update(nodePoolId string, input *NodePoolUpdateInput) error
+	Delete(nodePoolId string) error
+}
+
 type SchedulerEffect string
 
 const (
@@ -24,7 +31,7 @@ type NodePool struct {
 	Autoscaling     AutoscalingSettings `json:"autoscaling"`
 }
 
-type NodePoolService struct {
+type NodePoolServiceClient struct {
 	client *Client
 }
 
@@ -59,7 +66,7 @@ type NodeTaint struct {
 	Effect SchedulerEffect `json:"effect"`
 }
 
-func (n *NodePoolService) Describe(id string) (*NodePool, error) {
+func (n *NodePoolServiceClient) Describe(id string) (*NodePool, error) {
 	var nodePool *NodePool
 
 	err := n.client.
@@ -75,7 +82,7 @@ func (n *NodePoolService) Describe(id string) (*NodePool, error) {
 
 }
 
-func (n *NodePoolService) Create(input *NodePoolInput) (*NodePool, error) {
+func (n *NodePoolServiceClient) Create(input *NodePoolInput) (*NodePool, error) {
 	var nodePool *NodePool
 
 	err := n.client.
@@ -91,7 +98,7 @@ func (n *NodePoolService) Create(input *NodePoolInput) (*NodePool, error) {
 	return nodePool, nil
 }
 
-func (n *NodePoolService) Update(nodePoolId string, input *NodePoolUpdateInput) error {
+func (n *NodePoolServiceClient) Update(nodePoolId string, input *NodePoolUpdateInput) error {
 	err := n.client.
 		Call(fmt.Sprintf("rest/v1/node-pool/%s", nodePoolId),
 			"Put",
@@ -105,7 +112,7 @@ func (n *NodePoolService) Update(nodePoolId string, input *NodePoolUpdateInput) 
 	return nil
 }
 
-func (n *NodePoolService) Delete(nodePoolId string) error {
+func (n *NodePoolServiceClient) Delete(nodePoolId string) error {
 	err := n.client.
 		Call(fmt.Sprintf("rest/v1/node-pool/%s", nodePoolId),
 			"Delete",

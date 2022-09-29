@@ -5,6 +5,21 @@ import (
 	"time"
 )
 
+type ClusterService interface {
+	List(maxSize int, page int) (*ClusterList, error)
+	Describe(clusterName string) (*Cluster, error)
+	DescribeById(id string) (*Cluster, error)
+	Create(input *ClusterInput) (*Cluster, error)
+	Delete(clusterName string) error
+	ListNodes(clusterName string) (*NodeList, error)
+	CreateServiceAccountForSelf(clusterName string) (*ServiceAccount, error)
+	GetServiceAccount(clusterName string, serviceAccountId string) (*ServiceAccount, error)
+	CreateServiceAccount(clusterName string, subjectId string) (*ServiceAccount, error)
+	DeleteServiceAccount(clusterName string, serviceAccountId string) error
+	ListUserServiceAccounts(clusterName string) ([]*UserServiceAccount, error)
+	GetIdentity(clusterName string) (*ClusterIdentity, error)
+}
+
 type ClusterInput struct {
 	Name              string             `json:"name"`
 	KubeVersion       string             `json:"kubeVersion"`
@@ -40,7 +55,7 @@ type NodeList struct {
 	*SortAndPageable
 }
 
-type ClusterService struct {
+type ClusterServiceClient struct {
 	client *Client
 }
 
@@ -63,7 +78,7 @@ type ClusterIdentity struct {
 	ClusterCertificateAuthorityPem string `json:"clusterCertificateAuthorityPem"`
 }
 
-func (c *ClusterService) List(maxSize int, page int) (*ClusterList, error) {
+func (c *ClusterServiceClient) List(maxSize int, page int) (*ClusterList, error) {
 
 	// TODO handle paging
 	var clusterList *ClusterList
@@ -80,7 +95,7 @@ func (c *ClusterService) List(maxSize int, page int) (*ClusterList, error) {
 	return clusterList, nil
 }
 
-func (c *ClusterService) Describe(clusterName string) (*Cluster, error) {
+func (c *ClusterServiceClient) Describe(clusterName string) (*Cluster, error) {
 	var cluster *Cluster
 
 	err := c.client.
@@ -95,7 +110,7 @@ func (c *ClusterService) Describe(clusterName string) (*Cluster, error) {
 	return cluster, nil
 }
 
-func (c *ClusterService) DescribeById(id string) (*Cluster, error) {
+func (c *ClusterServiceClient) DescribeById(id string) (*Cluster, error) {
 	var cluster *Cluster
 
 	err := c.client.
@@ -110,7 +125,7 @@ func (c *ClusterService) DescribeById(id string) (*Cluster, error) {
 	return cluster, nil
 }
 
-func (c *ClusterService) Create(input *ClusterInput) (*Cluster, error) {
+func (c *ClusterServiceClient) Create(input *ClusterInput) (*Cluster, error) {
 	var cluster *Cluster
 
 	err := c.client.
@@ -126,7 +141,7 @@ func (c *ClusterService) Create(input *ClusterInput) (*Cluster, error) {
 	return cluster, nil
 }
 
-func (c *ClusterService) Delete(clusterName string) error {
+func (c *ClusterServiceClient) Delete(clusterName string) error {
 
 	err := c.client.
 		Call(fmt.Sprintf("rest/v1/cluster/%s", clusterName),
@@ -141,7 +156,7 @@ func (c *ClusterService) Delete(clusterName string) error {
 
 }
 
-func (c *ClusterService) ListNodes(clusterName string) (*NodeList, error) {
+func (c *ClusterServiceClient) ListNodes(clusterName string) (*NodeList, error) {
 	var nodeList *NodeList
 
 	err := c.client.
@@ -163,7 +178,7 @@ type ServiceAccount struct {
 	ClusterCertificateAuthority string `json:"clusterCertificateAuthority"`
 }
 
-func (c *ClusterService) CreateServiceAccountForSelf(clusterName string) (*ServiceAccount, error) {
+func (c *ClusterServiceClient) CreateServiceAccountForSelf(clusterName string) (*ServiceAccount, error) {
 	var serviceAccount *ServiceAccount
 
 	err := c.client.
@@ -178,7 +193,7 @@ func (c *ClusterService) CreateServiceAccountForSelf(clusterName string) (*Servi
 	return serviceAccount, nil
 }
 
-func (c *ClusterService) CreateServiceAccount(clusterName string, subjectId string) (*ServiceAccount, error) {
+func (c *ClusterServiceClient) CreateServiceAccount(clusterName string, subjectId string) (*ServiceAccount, error) {
 	var serviceAccount *ServiceAccount
 
 	err := c.client.
@@ -193,7 +208,7 @@ func (c *ClusterService) CreateServiceAccount(clusterName string, subjectId stri
 	return serviceAccount, nil
 }
 
-func (c *ClusterService) GetServiceAccount(clusterName string, serviceAccountId string) (*ServiceAccount, error) {
+func (c *ClusterServiceClient) GetServiceAccount(clusterName string, serviceAccountId string) (*ServiceAccount, error) {
 	var serviceAccount *ServiceAccount
 
 	err := c.client.
@@ -208,7 +223,7 @@ func (c *ClusterService) GetServiceAccount(clusterName string, serviceAccountId 
 	return serviceAccount, nil
 }
 
-func (c *ClusterService) DeleteServiceAccount(clusterName string, serviceAccountId string) error {
+func (c *ClusterServiceClient) DeleteServiceAccount(clusterName string, serviceAccountId string) error {
 	err := c.client.
 		Call(fmt.Sprintf("rest/v1/cluster/%s/user-service-account/%s", clusterName, serviceAccountId),
 			"Delete",
@@ -220,7 +235,7 @@ func (c *ClusterService) DeleteServiceAccount(clusterName string, serviceAccount
 	return nil
 }
 
-func (c *ClusterService) ListUserServiceAccounts(clusterName string) ([]*UserServiceAccount, error) {
+func (c *ClusterServiceClient) ListUserServiceAccounts(clusterName string) ([]*UserServiceAccount, error) {
 	var userServiceAccount []*UserServiceAccount
 
 	err := c.client.
@@ -235,7 +250,7 @@ func (c *ClusterService) ListUserServiceAccounts(clusterName string) ([]*UserSer
 	return userServiceAccount, nil
 }
 
-func (c *ClusterService) GetIdentity(clusterName string) (*ClusterIdentity, error) {
+func (c *ClusterServiceClient) GetIdentity(clusterName string) (*ClusterIdentity, error) {
 	var clusterIdentity *ClusterIdentity
 
 	err := c.client.

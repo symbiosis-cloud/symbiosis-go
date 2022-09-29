@@ -4,6 +4,12 @@ import (
 	"fmt"
 )
 
+type NodeService interface {
+	Describe(name string) (*Node, error)
+	Recycle(name string) error
+	Delete(name string) error
+}
+
 type ProductCost struct {
 	Currency string  `json:"currency"`
 	UnitCost float32 `json:"unitCost"`
@@ -37,11 +43,11 @@ type Node struct {
 	client             *Client
 }
 
-type NodeService struct {
+type NodeServiceClient struct {
 	client *Client
 }
 
-func (n *NodeService) Describe(name string) (*Node, error) {
+func (n *NodeServiceClient) Describe(name string) (*Node, error) {
 
 	var node *Node
 
@@ -57,7 +63,7 @@ func (n *NodeService) Describe(name string) (*Node, error) {
 	return node, nil
 }
 
-func (n *NodeService) Recycle(name string) error {
+func (n *NodeServiceClient) Recycle(name string) error {
 
 	err := n.client.
 		Call(fmt.Sprintf("rest/v1/node/%v/recycle", name),
@@ -71,7 +77,7 @@ func (n *NodeService) Recycle(name string) error {
 	return nil
 }
 
-func (n *NodeService) Delete(name string) error {
+func (n *NodeServiceClient) Delete(name string) error {
 
 	err := n.client.
 		Call(fmt.Sprintf("rest/v1/node/%v", name),

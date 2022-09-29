@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/symbiosis-cloud/symbiosis-go"
 	"log"
 	"os"
+
+	"github.com/symbiosis-cloud/symbiosis-go"
 )
 
 func main() {
@@ -23,9 +24,6 @@ func main() {
 		},
 		KubeVersion: "1.23.5",
 		Region:      "germany-1",
-		Configuration: symbiosis.ClusterConfigurationInput{
-			EnableNginxIngress: false,
-		},
 	})
 
 	if err != nil {

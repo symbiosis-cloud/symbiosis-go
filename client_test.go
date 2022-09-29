@@ -3,11 +3,12 @@ package symbiosis
 import (
 	"encoding/json"
 	"fmt"
+	"testing"
+	"time"
+
 	"github.com/go-resty/resty/v2"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 func TestNewClientFromAPIKeyEmptyValues(t *testing.T) {

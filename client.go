@@ -15,13 +15,17 @@ const (
 	StagingAPIEndpoint = "https://api.staging.symbiosis.host"
 )
 
+type SymbiosisClient interface {
+	NewClientFromAPIKey(apiKey string, opts ...ClientOption) (*Client, error)
+}
+
 type Client struct {
 	httpClient *resty.Client
 
-	Team     *TeamService
-	Cluster  *ClusterService
-	NodePool *NodePoolService
-	Node     *NodeService
+	Team     TeamService
+	Cluster  ClusterService
+	NodePool NodePoolService
+	Node     NodeService
 }
 
 type ClientOption func(c *resty.Client)
@@ -100,10 +104,10 @@ func NewClientFromAPIKey(apiKey string, opts ...ClientOption) (*Client, error) {
 	client := &Client{
 		httpClient: httpClient,
 	}
-	client.Team = &TeamService{client}
-	client.Cluster = &ClusterService{client}
-	client.Node = &NodeService{client}
-	client.NodePool = &NodePoolService{client}
+	client.Team = &TeamServiceClient{client}
+	client.Cluster = &ClusterServiceClient{client}
+	client.Node = &NodeServiceClient{client}
+	client.NodePool = &NodePoolServiceClient{client}
 
 	return client, nil
 }

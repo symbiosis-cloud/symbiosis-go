@@ -6,6 +6,14 @@ import (
 	"fmt"
 )
 
+type TeamService interface {
+	GetMemberByEmail(email string) (*TeamMember, error)
+	GetInvitationByEmail(email string) (*TeamMember, error)
+	InviteMembers(emails []string, role string) ([]*TeamMember, error)
+	DeleteMember(email string) error
+	ChangeRole(email string, role string) error
+}
+
 type TeamMember struct {
 	Email  string `json:"email"`
 	TeamId string `json:"teamId"`
@@ -29,7 +37,7 @@ const (
 	RoleMember = "MEMBER"
 )
 
-type TeamService struct {
+type TeamServiceClient struct {
 	client *Client
 }
 
@@ -47,7 +55,7 @@ func ValidateRole(role string) error {
 	return nil
 }
 
-func (t *TeamService) GetMemberByEmail(email string) (*TeamMember, error) {
+func (t *TeamServiceClient) GetMemberByEmail(email string) (*TeamMember, error) {
 	var member *TeamMember
 
 	err := t.client.
@@ -62,7 +70,7 @@ func (t *TeamService) GetMemberByEmail(email string) (*TeamMember, error) {
 	return member, nil
 }
 
-func (t *TeamService) GetInvitationByEmail(email string) (*TeamMember, error) {
+func (t *TeamServiceClient) GetInvitationByEmail(email string) (*TeamMember, error) {
 
 	var member *TeamMember
 
@@ -78,7 +86,7 @@ func (t *TeamService) GetInvitationByEmail(email string) (*TeamMember, error) {
 	return member, nil
 }
 
-func (t *TeamService) InviteMembers(emails []string, role string) ([]*TeamMember, error) {
+func (t *TeamServiceClient) InviteMembers(emails []string, role string) ([]*TeamMember, error) {
 	err := ValidateRole(role)
 
 	if err != nil {
@@ -102,7 +110,7 @@ func (t *TeamService) InviteMembers(emails []string, role string) ([]*TeamMember
 	return teamMembers, nil
 }
 
-func (t *TeamService) DeleteMember(email string) error {
+func (t *TeamServiceClient) DeleteMember(email string) error {
 	err := t.client.
 		Call(fmt.Sprintf("rest/v1/team/member/%s", email),
 			"Delete",
@@ -116,7 +124,7 @@ func (t *TeamService) DeleteMember(email string) error {
 
 }
 
-func (t *TeamService) ChangeRole(email string, role string) error {
+func (t *TeamServiceClient) ChangeRole(email string, role string) error {
 
 	err := ValidateRole(role)
 

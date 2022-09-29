@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/symbiosis-cloud/symbiosis-go"
 	"log"
 	"os"
+
+	"github.com/symbiosis-cloud/symbiosis-go"
 )
 
 func main() {
@@ -13,42 +14,26 @@ func main() {
 		log.Fatalf("Error occurred: %s", err)
 	}
 
-	c, err := client.Cluster.Create(&symbiosis.ClusterInput{
-		Name: "hello-world-test-golang",
-		Nodes: []symbiosis.ClusterNodeInput{
-			{
-				Quantity: 1,
-				NodeType: "general-int-1",
-			},
-		},
-		KubeVersion: "1.23.5",
-		Region:      "germany-1",
-		Configuration: symbiosis.ClusterConfigurationInput{
-			EnableNginxIngress: false,
-		},
-	})
+	b, err := client.NodePool.Describe("2512cf91-73de-404b-b04e-4c49d57ec1f1")
 
 	if err != nil {
-		log.Fatalf("Call failed: %s", err)
+		log.Fatalf("Error occurred: %s", err)
 	}
 
-	log.Printf("Cluster created: %s", c.Name)
+	log.Println(b)
 
-	clusters, err := client.Cluster.List(10, 0)
+	// c, err := client.Cluster.Create(&symbiosis.ClusterInput{
+	// 	Name:              "test-cluster-123",
+	// 	Region:            "germany-1",
+	// 	IsHighlyAvailable: true,
+	// 	Nodes:             []symbiosis.ClusterNodeInput{},
+	// 	KubeVersion:       "latest",
+	// })
 
-	if err != nil {
-		log.Fatalf("Call failed: %s", err)
-	}
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	for _, cluster := range clusters.Clusters {
-		nodes, err := client.Cluster.ListNodes(cluster.Name)
-
-		if err != nil {
-			log.Fatalf("Call failed: %s", err)
-		}
-
-		for _, node := range nodes.Nodes {
-			log.Printf("Node: %s (state: %s)", node.Name, node.State)
-		}
-	}
+	// log.Printf("Cluster %s created", c.Name)
+	// log.Printf("Highly available: %t", c.HighlyAvailable)
 }

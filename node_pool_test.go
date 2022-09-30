@@ -143,6 +143,11 @@ func TestUpdateNodePool(t *testing.T) {
 
 	input := &NodePoolUpdateInput{
 		Quantity: 2,
+		Autoscaling: AutoscalingSettings{
+			Enabled: true,
+			MinSize: 1,
+			MaxSize: 10,
+		},
 	}
 	err := c.NodePool.Update("test", input)
 

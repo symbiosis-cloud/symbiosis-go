@@ -36,7 +36,8 @@ type NodePoolServiceClient struct {
 }
 
 type NodePoolUpdateInput struct {
-	Quantity int `json:"quantity"`
+	Quantity    int                 `json:"quantity"`
+	Autoscaling AutoscalingSettings `json:"autoscaling"`
 }
 
 type AutoscalingSettings struct {

@@ -71,6 +71,13 @@ type ServiceAccountInput struct {
 	SubjectId string `json:"subjectId"`
 }
 
+type ServiceAccount struct {
+	ID                          string `json:"id"`
+	KubeConfig                  string `json:"kubeConfig"`
+	ServiceAccountToken         string `json:"serviceAccountToken"`
+	ClusterCertificateAuthority string `json:"clusterCertificateAuthority"`
+}
+
 type ClusterIdentity struct {
 	CertificatePem                 string `json:"certificatePem"`
 	PrivateKeyPem                  string `json:"privateKeyPem"`
@@ -169,13 +176,6 @@ func (c *ClusterServiceClient) ListNodes(clusterName string) (*NodeList, error) 
 	}
 
 	return nodeList, nil
-}
-
-type ServiceAccount struct {
-	ID                          string `json:"id"`
-	KubeConfig                  string `json:"kubeConfig"`
-	ServiceAccountToken         string `json:"serviceAccountToken"`
-	ClusterCertificateAuthority string `json:"clusterCertificateAuthority"`
 }
 
 func (c *ClusterServiceClient) CreateServiceAccountForSelf(clusterName string) (*ServiceAccount, error) {

@@ -104,12 +104,33 @@ func NewClientFromAPIKey(apiKey string, opts ...ClientOption) (*Client, error) {
 	client := &Client{
 		httpClient: httpClient,
 	}
-	client.Team = &TeamServiceClient{client}
-	client.Cluster = &ClusterServiceClient{client}
-	client.Node = &NodeServiceClient{client}
-	client.NodePool = &NodePoolServiceClient{client}
 
+	client.setServices()
 	return client, nil
+}
+
+func NewClientFromToken(token string, teamId string, opts ...ClientOption) (*Client, error) {
+	if token == "" || teamId == "" {
+		return nil, errors.New("Missing token or teamId")
+	}
+
+	httpClient := newHttpClient(opts...)
+	httpClient.SetHeader("x-auth-token", token)
+	httpClient.SetHeader("x-stim-team", teamId)
+
+	client := &Client{
+		httpClient: httpClient,
+	}
+
+	client.setServices()
+	return client, nil
+}
+
+func (c *Client) setServices() {
+	c.Team = &TeamServiceClient{c}
+	c.Cluster = &ClusterServiceClient{c}
+	c.Node = &NodeServiceClient{c}
+	c.NodePool = &NodePoolServiceClient{c}
 }
 
 func (c *Client) ValidateResponse(resp *resty.Response) error {

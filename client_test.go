@@ -31,6 +31,17 @@ func TestNewClientFromAPIKeyResty(t *testing.T) {
 
 	assert.IsType(t, &resty.Client{}, c.httpClient)
 }
+func TestNewClientFromTokenResty(t *testing.T) {
+	c, err := NewClientFromToken("test", "123")
+
+	assert.Nil(t, err)
+
+	assert.IsType(t, &resty.Client{}, c.httpClient)
+
+	_, err = NewClientFromToken("test", "")
+
+	assert.ErrorContains(t, err, "Missing")
+}
 
 func TestValidateResponse(t *testing.T) {
 

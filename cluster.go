@@ -30,7 +30,6 @@ type ClusterInput struct {
 
 type ClusterNodePoolInput struct {
 	Name         string              `json:"name"`
-	ClusterName  string              `json:"clusterName"`
 	NodeTypeName string              `json:"nodeTypeName"`
 	Quantity     int                 `json:"quantity"`
 	Labels       []NodeLabel         `json:"labels"`

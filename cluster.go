@@ -21,11 +21,21 @@ type ClusterService interface {
 }
 
 type ClusterInput struct {
-	Name              string          `json:"name"`
-	KubeVersion       string          `json:"kubeVersion"`
-	Region            string          `json:"regionName"`
-	Nodes             []NodePoolInput `json:"nodes"`
-	IsHighlyAvailable bool            `json:"isHighlyAvailable"`
+	Name              string                 `json:"name"`
+	KubeVersion       string                 `json:"kubeVersion"`
+	Region            string                 `json:"regionName"`
+	Nodes             []ClusterNodePoolInput `json:"nodes"`
+	IsHighlyAvailable bool                   `json:"isHighlyAvailable"`
+}
+
+type ClusterNodePoolInput struct {
+	Name         string              `json:"name"`
+	ClusterName  string              `json:"clusterName"`
+	NodeTypeName string              `json:"nodeTypeName"`
+	Quantity     int                 `json:"quantity"`
+	Labels       []NodeLabel         `json:"labels"`
+	Taints       []NodeTaint         `json:"taints"`
+	Autoscaling  AutoscalingSettings `json:"autoscaling"`
 }
 
 type Cluster struct {

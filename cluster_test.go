@@ -171,10 +171,10 @@ func TestCreateCluster(t *testing.T) {
 
 	ClusterInput := &ClusterInput{
 		Name: "test",
-		Nodes: []ClusterNodeInput{
+		Nodes: []NodePoolInput{
 			{
-				Quantity: 1,
-				NodeType: "general-int-1",
+				Quantity:     1,
+				NodeTypeName: "general-int-1",
 			},
 		},
 		KubeVersion:       "1.23.5",
@@ -190,7 +190,7 @@ func TestCreateCluster(t *testing.T) {
 	assert.Equal(t, true, cluster.IsHighlyAvailable)
 
 	for _, node := range fakeCluster.Nodes {
-		assert.Equal(t, node.NodeType.Name, ClusterInput.Nodes[0].NodeType)
+		assert.Equal(t, node.NodeType.Name, ClusterInput.Nodes[0].NodeTypeName)
 	}
 
 	assert.Equal(t, len(fakeCluster.Nodes), len(ClusterInput.Nodes))

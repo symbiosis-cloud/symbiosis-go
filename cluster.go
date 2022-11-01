@@ -21,11 +21,11 @@ type ClusterService interface {
 }
 
 type ClusterInput struct {
-	Name              string             `json:"name"`
-	KubeVersion       string             `json:"kubeVersion"`
-	Region            string             `json:"regionName"`
-	Nodes             []ClusterNodeInput `json:"nodes"`
-	IsHighlyAvailable bool               `json:"isHighlyAvailable"`
+	Name              string          `json:"name"`
+	KubeVersion       string          `json:"kubeVersion"`
+	Region            string          `json:"regionName"`
+	Nodes             []NodePoolInput `json:"nodes"`
+	IsHighlyAvailable bool            `json:"isHighlyAvailable"`
 }
 
 type ClusterNodeInput struct {

@@ -28,11 +28,6 @@ type ClusterInput struct {
 	IsHighlyAvailable bool            `json:"isHighlyAvailable"`
 }
 
-type ClusterNodeInput struct {
-	NodeType string `json:"nodeTypeName"`
-	Quantity int    `json:"quantity"`
-}
-
 type Cluster struct {
 	ID                string      `json:"id"`
 	Name              string      `json:"name"`

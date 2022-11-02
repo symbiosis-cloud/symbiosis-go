@@ -26,6 +26,7 @@ type Client struct {
 	Cluster  ClusterService
 	NodePool NodePoolService
 	Node     NodeService
+	Secret   SecretService
 }
 
 type ClientOption func(c *resty.Client)
@@ -131,6 +132,7 @@ func (c *Client) setServices() {
 	c.Cluster = &ClusterServiceClient{c}
 	c.Node = &NodeServiceClient{c}
 	c.NodePool = &NodePoolServiceClient{c}
+	c.Secret = &SecretServiceClient{c}
 }
 
 func (c *Client) ValidateResponse(resp *resty.Response) error {

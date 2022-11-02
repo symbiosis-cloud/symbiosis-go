@@ -171,7 +171,7 @@ func TestCreateCluster(t *testing.T) {
 
 	ClusterInput := &ClusterInput{
 		Name: "test",
-		Nodes: []NodePoolInput{
+		Nodes: []ClusterNodePoolInput{
 			{
 				Quantity:     1,
 				NodeTypeName: "general-int-1",

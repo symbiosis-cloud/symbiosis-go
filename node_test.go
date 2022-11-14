@@ -37,6 +37,41 @@ const nodeJSON = `
 	"priority": 1
 }`
 
+var typesJson = `
+[
+	{
+		"id": "xxxxxx-2023-4e81-8263-20d57e8461b4",
+		"name": "general-1",
+		"memoryMi": 2048,
+		"storageGi": 20,
+		"vcpu": 1,
+		"product": {
+			"productCosts": [
+				{
+					"currency": "USD",
+					"unitCost": 6.00
+				}
+			]
+		}
+	},
+	{
+		"id": "xxxxxx-38cf-4586-b5a6-a534f71e532d",
+		"name": "general-2",
+		"memoryMi": 4096,
+		"storageGi": 30,
+		"vcpu": 2,
+		"product": {
+			"productCosts": [
+				{
+					"currency": "USD",
+					"unitCost": 12.00
+				}
+			]
+		}
+	}
+]
+`
+
 func TestDescribeNode(t *testing.T) {
 	c := getMocketClient()
 	defer httpmock.DeactivateAndReset()
@@ -58,6 +93,31 @@ func TestDescribeNode(t *testing.T) {
 	httpmock.RegisterResponder("GET", fakeURL, responder)
 
 	_, err = c.Node.Describe("test")
+	assert.Error(t, err)
+}
+
+func TestNodeTypes(t *testing.T) {
+	c := getMocketClient()
+	defer httpmock.DeactivateAndReset()
+
+	fakeURL := "/rest/v1/node-type"
+
+	var fakeTypes []NodeType
+	json.Unmarshal([]byte(typesJson), &fakeTypes)
+
+	responder := httpmock.NewStringResponder(200, typesJson)
+	httpmock.RegisterResponder("GET", fakeURL, responder)
+
+	types, err := c.Node.Types()
+
+	assert.Nil(t, err)
+	assert.Equal(t, fakeTypes, types)
+	assert.Equal(t, types[0].Name, "general-1")
+
+	responder = httpmock.NewErrorResponder(assert.AnError)
+	httpmock.RegisterResponder("GET", fakeURL, responder)
+
+	_, err = c.Node.Types()
 	assert.Error(t, err)
 }
 

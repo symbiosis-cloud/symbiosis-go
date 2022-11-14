@@ -8,6 +8,7 @@ type NodeService interface {
 	Describe(name string) (*Node, error)
 	Recycle(name string) error
 	Delete(name string) error
+	Types() ([]NodeType, error)
 }
 
 type ProductCost struct {
@@ -89,4 +90,18 @@ func (n *NodeServiceClient) Delete(name string) error {
 	}
 
 	return nil
+}
+
+func (n *NodeServiceClient) Types() ([]NodeType, error) {
+	var nodeTypes []NodeType
+	err := n.client.
+		Call("rest/v1/node-type",
+			"Get",
+			&nodeTypes)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return nodeTypes, nil
 }

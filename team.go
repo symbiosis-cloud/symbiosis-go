@@ -9,45 +9,45 @@ import (
 type TeamService interface {
 	GetMemberByEmail(email string) (*TeamMember, error)
 	GetInvitationByEmail(email string) (*TeamMember, error)
-	InviteMembers(emails []string, role string) ([]*TeamMember, error)
+	InviteMembers(emails []string, role UserRole) ([]*TeamMember, error)
 	DeleteMember(email string) error
-	ChangeRole(email string, role string) error
-	ValidateRole(role string) error
-	GetValidRoles() map[string]bool
+	ChangeRole(email string, role UserRole) error
 }
 
 type TeamMember struct {
-	Email  string `json:"email"`
-	TeamId string `json:"teamId"`
-	Role   string `json:"role"`
+	Email  string   `json:"email"`
+	TeamId string   `json:"teamId"`
+	Role   UserRole `json:"role"`
 }
 
 type Invite struct {
 	Emails []string `json:"emails"`
-	Role   string   `json:"role"`
+	Role   UserRole `json:"role"`
 }
+
+type UserRole string
 
 const (
 
 	// Has full access, can create teams
-	RoleOwner = "OWNER"
+	ROLE_OWNER UserRole = "OWNER"
 
 	// Has full access within a team, can invite other team members
-	RoleAdmin = "ADMIN"
+	ROLE_ADMIN UserRole = "ADMIN"
 
 	// Can manage resources in clusters but not create them
-	RoleMember = "MEMBER"
+	ROLE_MEMBER UserRole = "MEMBER"
 )
 
 type TeamServiceClient struct {
 	client *Client
 }
 
-func GetValidRoles() map[string]bool {
-	return map[string]bool{RoleOwner: true, RoleAdmin: true, RoleMember: true}
+func GetValidRoles() map[UserRole]bool {
+	return map[UserRole]bool{ROLE_OWNER: true, ROLE_ADMIN: true, ROLE_MEMBER: true}
 }
 
-func ValidateRole(role string) error {
+func ValidateRole(role UserRole) error {
 	validRoles := GetValidRoles()
 
 	if _, ok := validRoles[role]; !ok {
@@ -88,7 +88,7 @@ func (t *TeamServiceClient) GetInvitationByEmail(email string) (*TeamMember, err
 	return member, nil
 }
 
-func (t *TeamServiceClient) InviteMembers(emails []string, role string) ([]*TeamMember, error) {
+func (t *TeamServiceClient) InviteMembers(emails []string, role UserRole) ([]*TeamMember, error) {
 	err := ValidateRole(role)
 
 	if err != nil {
@@ -126,7 +126,7 @@ func (t *TeamServiceClient) DeleteMember(email string) error {
 
 }
 
-func (t *TeamServiceClient) ChangeRole(email string, role string) error {
+func (t *TeamServiceClient) ChangeRole(email string, role UserRole) error {
 
 	err := ValidateRole(role)
 

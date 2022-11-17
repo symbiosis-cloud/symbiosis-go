@@ -12,6 +12,8 @@ type TeamService interface {
 	InviteMembers(emails []string, role string) ([]*TeamMember, error)
 	DeleteMember(email string) error
 	ChangeRole(email string, role string) error
+	ValidateRole(role string) error
+	GetValidRoles() map[string]bool
 }
 
 type TeamMember struct {

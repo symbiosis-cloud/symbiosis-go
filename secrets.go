@@ -1,6 +1,5 @@
 package symbiosis
 
-// /rest/v1/github/{owner}/{repository}/project/secret?environment=preview|development|production
 import (
 	"fmt"
 )

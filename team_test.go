@@ -2,9 +2,10 @@ package symbiosis
 
 import (
 	"encoding/json"
+	"testing"
+
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 const teamMemberJSON = `
@@ -17,7 +18,7 @@ const teamMemberJSON = `
 const teamMembersJSON = `[ ` + teamMemberJSON + ` ]`
 
 func TestGetValidRoles(t *testing.T) {
-	validRoles := map[string]bool{RoleOwner: true, RoleAdmin: true, RoleMember: true}
+	validRoles := map[UserRole]bool{ROLE_OWNER: true, ROLE_ADMIN: true, ROLE_MEMBER: true}
 
 	assert.Equal(t, validRoles, GetValidRoles())
 }
@@ -82,7 +83,7 @@ func TestInviteMembers(t *testing.T) {
 	responder := httpmock.NewStringResponder(200, teamMembersJSON)
 	httpmock.RegisterResponder("POST", fakeURL, responder)
 
-	teamMembers, err := c.Team.InviteMembers([]string{"test@tca0.nl"}, RoleAdmin)
+	teamMembers, err := c.Team.InviteMembers([]string{"test@tca0.nl"}, ROLE_ADMIN)
 
 	assert.Nil(t, err)
 	assert.Equal(t, fakeTeamMembers, teamMembers)
@@ -90,7 +91,7 @@ func TestInviteMembers(t *testing.T) {
 	responder = httpmock.NewErrorResponder(assert.AnError)
 	httpmock.RegisterResponder("POST", fakeURL, responder)
 
-	_, err = c.Team.InviteMembers([]string{"test@tca0.nl"}, RoleAdmin)
+	_, err = c.Team.InviteMembers([]string{"test@tca0.nl"}, ROLE_ADMIN)
 	assert.Error(t, err)
 
 	// test invalid role
@@ -127,14 +128,14 @@ func TestChangeRole(t *testing.T) {
 	responder := httpmock.NewStringResponder(200, "false")
 	httpmock.RegisterResponder("PUT", fakeURL, responder)
 
-	err := c.Team.ChangeRole("test@tca0.nl", RoleAdmin)
+	err := c.Team.ChangeRole("test@tca0.nl", ROLE_ADMIN)
 
 	assert.Nil(t, err)
 
 	responder = httpmock.NewErrorResponder(assert.AnError)
 	httpmock.RegisterResponder("PUT", fakeURL, responder)
 
-	err = c.Team.ChangeRole("test@tca0.nl", RoleAdmin)
+	err = c.Team.ChangeRole("test@tca0.nl", ROLE_ADMIN)
 	assert.Error(t, err)
 
 	// test invalid role

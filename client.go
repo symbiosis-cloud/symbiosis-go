@@ -29,6 +29,7 @@ type Client struct {
 	Secret   SecretService
 	Project  ProjectService
 	Region   RegionService
+	ApiKeys  ApiKeyService
 }
 
 type ClientOption func(c *resty.Client)
@@ -137,6 +138,7 @@ func (c *Client) setServices() {
 	c.Secret = &SecretServiceClient{c}
 	c.Project = &ProjectServiceClient{c}
 	c.Region = &RegionServiceClient{c}
+	c.ApiKeys = &ApiKeyServiceClient{c}
 }
 
 func (c *Client) ValidateResponse(resp *resty.Response) error {

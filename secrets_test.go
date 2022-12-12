@@ -11,34 +11,26 @@ import (
 const secretsJSON = `
 {
 	"super": {
-		"value": "secret222",
-		"isDevelopmentSecret": true,
-		"isPreviewSecret": false,
-		"isProductionSecret": true
+		"developmentValue": "secret221",
+		"previewValue": "secret222",
+		"productionValue": "secret223"
 	},
 	"super2": {
-		"value": "secret222",
-		"isDevelopmentSecret": true,
-		"isPreviewSecret": false,
-		"isProductionSecret": true
+		"developmentValue": "secret222",
+		"previewValue": "secret222",
+		"productionValue": "secret222"
 	},
 	"super3": {
-		"value": "dfsdscf",
-		"isDevelopmentSecret": true,
-		"isPreviewSecret": true,
-		"isProductionSecret": true
+		"developmentValue": "dfsdscf",
+		"previewValue": "dfsdscf",
+		"productionValue": "dfsdscf"
 	}
 }
 `
 
-const previewSecretsJSON = `
+const previewValuesJSON = `
 {
-	"super3": {
-		"value": "dfsdscf",
-		"isDevelopmentSecret": false,
-		"isPreviewSecret": true,
-		"isProductionSecret": false
-	}
+	"super3": "super-3-dev-secret"
 }
 `
 
@@ -52,10 +44,9 @@ func TestCreateSecret(t *testing.T) {
 	httpmock.RegisterResponder("PUT", fakeURL, responder)
 
 	err := c.Secret.Create("test", "test", Secret{
-		Value:               "123",
-		IsDevelopmentSecret: false,
-		IsPreviewSecret:     true,
-		IsProductionSecret:  false,
+		DevelopmentValue: "123",
+		PreviewValue:     "123",
+		ProductionValue:  "123",
 	})
 
 	assert.Nil(t, err)
@@ -64,10 +55,9 @@ func TestCreateSecret(t *testing.T) {
 	httpmock.RegisterResponder("PUT", fakeURL, responder)
 
 	err = c.Secret.Create("test", "test", Secret{
-		Value:               "123",
-		IsDevelopmentSecret: false,
-		IsPreviewSecret:     true,
-		IsProductionSecret:  false,
+		DevelopmentValue: "123",
+		PreviewValue:     "123",
+		ProductionValue:  "123",
 	})
 	assert.Error(t, err)
 }
@@ -88,10 +78,9 @@ func TestGetSecretsByProject(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, fakeSecrets, secrets)
-	assert.Equal(t, secrets["super"].Value, "secret222")
-	assert.Equal(t, secrets["super"].IsDevelopmentSecret, true)
-	assert.Equal(t, secrets["super"].IsPreviewSecret, false)
-	assert.Equal(t, secrets["super"].IsProductionSecret, true)
+	assert.Equal(t, secrets["super"].DevelopmentValue, "secret221")
+	assert.Equal(t, secrets["super"].PreviewValue, "secret222")
+	assert.Equal(t, secrets["super"].ProductionValue, "secret223")
 
 	responder = httpmock.NewErrorResponder(assert.AnError)
 	httpmock.RegisterResponder("GET", fakeURL, responder)
@@ -104,20 +93,20 @@ func TestGetSecretsByProjectAndEnvironment(t *testing.T) {
 	c := getMocketClient()
 	defer httpmock.DeactivateAndReset()
 
-	fakeURL := "/rest/v1/project/test/secret"
+	fakeURL := "/rest/v1/project/test/secret?environment=preview"
 
-	var fakeSecrets SecretCollection
-	json.Unmarshal([]byte(previewSecretsJSON), &fakeSecrets)
+	var fakeSecrets map[string]string
+	json.Unmarshal([]byte(previewValuesJSON), &fakeSecrets)
 
-	responder := httpmock.NewStringResponder(200, previewSecretsJSON)
+	responder := httpmock.NewStringResponder(200, previewValuesJSON)
 	httpmock.RegisterResponder("GET", fakeURL, responder)
 
 	secrets, err := c.Secret.GetSecretsByProjectAndEnvironment("test", ENVIRONMENT_PREVIEW)
 
 	assert.Nil(t, err)
-	assert.Equal(t, len(secrets), 1)
 	assert.Equal(t, fakeSecrets, secrets)
-	assert.Equal(t, secrets["super3"].IsPreviewSecret, true)
+	assert.Equal(t, len(secrets), 1)
+	assert.Equal(t, secrets["super3"], "super-3-dev-secret")
 
 	responder = httpmock.NewErrorResponder(assert.AnError)
 	httpmock.RegisterResponder("GET", fakeURL, responder)

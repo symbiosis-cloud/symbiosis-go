@@ -7,7 +7,7 @@ import (
 type SecretService interface {
 	Create(project string, secretKey string, input Secret) error
 	GetSecretsByProject(project string) (SecretCollection, error)
-	GetSecretsByProjectAndEnvironment(project string, environment ProjectEnvironment) (SecretCollection, error)
+	GetSecretsByProjectAndEnvironment(project string, environment ProjectEnvironment) (map[string]string, error)
 }
 
 type ProjectEnvironment string
@@ -19,10 +19,9 @@ const (
 )
 
 type Secret struct {
-	Value               string `json:"value"`
-	IsDevelopmentSecret bool   `json:"isDevelopmentSecret"`
-	IsPreviewSecret     bool   `json:"isPreviewSecret"`
-	IsProductionSecret  bool   `json:"isProductionSecret"`
+	DevelopmentValue string `json:"developmentValue"`
+	PreviewValue     string `json:"previewValue"`
+	ProductionValue  string `json:"productionValue"`
 }
 
 type SecretCollection map[string]*Secret
@@ -62,8 +61,8 @@ func (n *SecretServiceClient) GetSecretsByProject(project string) (SecretCollect
 	return *secrets, nil
 }
 
-func (n *SecretServiceClient) GetSecretsByProjectAndEnvironment(project string, environment ProjectEnvironment) (SecretCollection, error) {
-	var secrets *SecretCollection
+func (n *SecretServiceClient) GetSecretsByProjectAndEnvironment(project string, environment ProjectEnvironment) (map[string]string, error) {
+	var secrets *map[string]string
 
 	err := n.client.
 		Call(fmt.Sprintf("/rest/v1/project/%s/secret?environment=%s", project, environment),

@@ -87,6 +87,7 @@ type ClusterIdentity struct {
 	PrivateKeyPem                  string `json:"privateKeyPem"`
 	ExpiresAtEpochSecond           int    `json:"expiresAtEpochSecond"`
 	ClusterCertificateAuthorityPem string `json:"clusterCertificateAuthorityPem"`
+	KubeConfig                     string `json:"kubeConfig"`
 }
 
 func (c *ClusterServiceClient) List(maxSize int, page int) (*ClusterList, error) {

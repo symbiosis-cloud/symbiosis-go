@@ -72,7 +72,8 @@ const clusterIdentityJson = `
 	"certificatePem": "test",
 	"privateKeyPem": "test",
 	"expiresAtEpochSecond": 1658681509,
-	"clusterCertificateAuthorityPem": "test"
+	"clusterCertificateAuthorityPem": "test",
+	"kubeConfig": "test-kube-config"
 }`
 
 const clusterListJSON = `{ "content": [` + clusterJSON + `], ` + sortableJSON + ` }`
@@ -403,6 +404,7 @@ func TestGetIdentity(t *testing.T) {
 	assert.Equal(t, "test", identity.ClusterCertificateAuthorityPem)
 	assert.Equal(t, 1658681509, identity.ExpiresAtEpochSecond)
 	assert.Equal(t, "test", identity.PrivateKeyPem)
+	assert.Equal(t, "test-kube-config", identity.KubeConfig)
 
 	responder = httpmock.NewErrorResponder(assert.AnError)
 	httpmock.RegisterResponder("GET", fakeURL, responder)

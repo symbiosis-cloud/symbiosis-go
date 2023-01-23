@@ -142,6 +142,7 @@ func TestUpdateNodePool(t *testing.T) {
 	httpmock.RegisterResponder("PUT", fakeURL, responder)
 
 	input := &NodePoolUpdateInput{
+		Name:     "something",
 		Quantity: 2,
 		Autoscaling: AutoscalingSettings{
 			Enabled: true,

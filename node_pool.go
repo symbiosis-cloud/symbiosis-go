@@ -36,6 +36,7 @@ type NodePoolServiceClient struct {
 }
 
 type NodePoolUpdateInput struct {
+	Name        string              `json:"name,omitempty"`
 	Quantity    int                 `json:"quantity"`
 	Autoscaling AutoscalingSettings `json:"autoscaling"`
 }

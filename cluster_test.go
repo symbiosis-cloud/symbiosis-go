@@ -17,32 +17,33 @@ const clusterJSON = `
 	"apiServerEndpoint": "does.not.matter",
 	"state": "ACTIVE",
 	"isHighlyAvailable": true,
-	"nodes": [
-	  {
+	"region": {
+		"id": "9d420d32-31f8-4a4a-b790-d75ea58ffc08",
+		"name": "netherlands-1"
+	},
+	"nodes": [{
 		"id": "19fc97a5-30de-4f35-8b28-a14bf640b557",
 		"name": "random-0",
-		"nodeType": {
-		  "id": "2f8d2c39-23cd-4623-b816-9489a26c1b8d",
-		  "name": "general-int-1",
-		  "memoryMi": 1024,
-		  "storageGi": 1,
-		  "vcpu": 1,
-		  "product": {
-			"productCosts": [
-			  {
-				"currency": "USD",
-				"unitCost": 5
-			  }
-			]
-		  }
-		},
 		"region": {
-		  "id": "9d420d32-31f8-4a4a-b790-d75ea58ffc08",
-		  "name": "netherlands-1"
+			"id": "9d420d32-31f8-4a4a-b790-d75ea58ffc08",
+			"name": "netherlands-1"
 		},
 		"privateIPv4Address": "10.0.0.1",
-		"state": "ACTIVE"
-	  }]
+		"state": "ACTIVE",
+		"nodeType": {
+			"id": "2f8d2c39-23cd-4623-b816-9489a26c1b8d",
+			"name": "general-int-1",
+			"memoryMi": 1024,
+			"storageGi": 1,
+			"vcpu": 1,
+			"product": {
+				"productCosts": [{
+					"currency": "USD",
+					"unitCost": 5
+				}]
+			}
+		}
+	}]
 }
 `
 
@@ -149,6 +150,7 @@ func TestDescribeClusterById(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, fakeCluster, cluster)
+	assert.Equal(t, fakeCluster.Region.ID, cluster.Region.ID)
 
 	responder = httpmock.NewErrorResponder(assert.AnError)
 	httpmock.RegisterResponder("GET", fakeURL, responder)

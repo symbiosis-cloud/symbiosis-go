@@ -20,11 +20,6 @@ type Product struct {
 	ProductCosts []*ProductCost `json:"productCosts"`
 }
 
-type Region struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
-
 type NodeType struct {
 	ID        string   `json:"id"`
 	Name      string   `json:"name"`

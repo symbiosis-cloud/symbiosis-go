@@ -43,10 +43,16 @@ type Cluster struct {
 	KubeVersion       string      `json:"kubeVersion"`
 	APIServerEndpoint string      `json:"apiServerEndpoint"`
 	State             string      `json:"state"`
+	Region            *Region     `json:"region"`
 	Nodes             []*Node     `json:"nodes"`
 	NodePools         []*NodePool `json:"nodePools"`
 	CreatedAt         time.Time   `json:"createdAt"`
 	IsHighlyAvailable bool        `json:"isHighlyAvailable"`
+}
+
+type Region struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 type ClusterList struct {
